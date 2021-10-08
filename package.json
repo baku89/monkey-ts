@@ -1,0 +1,32 @@
+{
+	"name": "monkey-ts",
+	"author": "Baku Hashimoto <mail@baku89.com> (https://baku89.com)",
+	"scripts": {
+		"serve": "parcel src/index.html --no-cache --public-url / --dist-dir public",
+		"test": "jest"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@parcel/transformer-stylus": "^2.0.0-nightly.845",
+		"@parcel/transformer-typescript-tsc": "^2.0.0-nightly.845",
+		"@parcel/transformer-vue": "^2.0.0-nightly.2467",
+		"@parcel/validator-eslint": "^2.0.0-nightly.845",
+		"@parcel/validator-typescript": "^2.0.0-nightly.845",
+		"@types/jest": "^27.0.2",
+		"@typescript-eslint/eslint-plugin": "^4.28.2",
+		"@typescript-eslint/parser": "^4.28.2",
+		"eslint": "^7.30.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-simple-import-sort": "^7.0.0",
+		"eslint-plugin-unused-imports": "^1.1.2",
+		"jest": "^27.2.4",
+		"parcel": "^2.0.0-nightly.843",
+		"prettier": "^2.3.2",
+		"ts-jest": "^27.0.5",
+		"typescript": "^4.4.2",
+		"vue": "^3.2.9"
+	},
+	"browserslist": [
+		"since 2020-12"
+	]
+}

@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "es2021",
+		"module": "umd",
+		"strict": true,
+		"importHelpers": true,
+		"moduleResolution": "node",
+		"skipLibCheck": true,
+		"experimentalDecorators": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"sourceMap": true,
+		"baseUrl": ".",
+		"typeRoots": ["node_modules/@types", "src"],
+		"paths": {
+			"*": ["src/@types/*"],
+			"~/*": ["./*"]
+		},
+		"lib": ["esnext", "dom", "dom.iterable"]
+	},
+	"include": ["src/**/*.ts", "demo/**/*.ts"],
+	"exclude": ["node_modules"]
+}
