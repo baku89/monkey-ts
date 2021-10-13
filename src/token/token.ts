@@ -29,6 +29,11 @@ export enum TokenType {
 	// Keywords
 	FUNCTION = 'FUNCTION',
 	LET = 'LET',
+	TRUE = 'TRUE',
+	FALSE = 'FALSE',
+	IF = 'IF',
+	ELSE = 'ELSE',
+	RETURN = 'RETURN',
 }
 
 export interface Token {
@@ -36,13 +41,16 @@ export interface Token {
 	literal: string
 }
 
+const keywords = new Map<string, TokenType>([
+	['fn', TokenType.FUNCTION],
+	['let', TokenType.LET],
+	['true', TokenType.TRUE],
+	['false', TokenType.FALSE],
+	['if', TokenType.IF],
+	['else', TokenType.ELSE],
+	['return', TokenType.RETURN],
+])
+
 export function lookupIdent(literal: string): TokenType {
-	switch (literal) {
-		case 'let':
-			return TokenType.LET
-		case 'fn':
-			return TokenType.FUNCTION
-		default:
-			return TokenType.IDENT
-	}
+	return keywords.get(literal) ?? TokenType.IDENT
 }
