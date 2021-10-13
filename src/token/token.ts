@@ -28,3 +28,14 @@ export interface Token {
 	type: TokenType
 	literal: string
 }
+
+export function lookupIdent(literal: string): TokenType {
+	switch (literal) {
+		case 'let':
+			return TokenType.LET
+		case 'fn':
+			return TokenType.FUNCTION
+		default:
+			return TokenType.IDENT
+	}
+}

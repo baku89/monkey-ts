@@ -1,3 +1,3 @@
-import {Token, TokenType} from './token'
+import {lookupIdent, Token, TokenType} from './token'
 
-export {Token, TokenType}
+export {Token, TokenType, lookupIdent}
