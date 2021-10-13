@@ -34,17 +34,35 @@ export class Lexer {
 			case ';':
 				tok = {type: TokenType.SEMICOLON, literal: this.ch}
 				break
-			case '(':
-				tok = {type: TokenType.LPAREN, literal: this.ch}
-				break
-			case ')':
-				tok = {type: TokenType.RPAREN, literal: this.ch}
-				break
 			case ',':
 				tok = {type: TokenType.COMMA, literal: this.ch}
 				break
 			case '+':
 				tok = {type: TokenType.PLUS, literal: this.ch}
+				break
+			case '-':
+				tok = {type: TokenType.MINUS, literal: this.ch}
+				break
+			case '!':
+				tok = {type: TokenType.BANG, literal: this.ch}
+				break
+			case '/':
+				tok = {type: TokenType.SLASH, literal: this.ch}
+				break
+			case '*':
+				tok = {type: TokenType.ASTERISK, literal: this.ch}
+				break
+			case '<':
+				tok = {type: TokenType.LT, literal: this.ch}
+				break
+			case '>':
+				tok = {type: TokenType.GT, literal: this.ch}
+				break
+			case '(':
+				tok = {type: TokenType.LPAREN, literal: this.ch}
+				break
+			case ')':
+				tok = {type: TokenType.RPAREN, literal: this.ch}
 				break
 			case '{':
 				tok = {type: TokenType.LBRACE, literal: this.ch}
