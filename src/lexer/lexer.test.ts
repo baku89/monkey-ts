@@ -1,7 +1,7 @@
 import {Lexer} from '../lexer'
 import {TokenType} from '../token'
 
-test('Test nextToken', () => {
+test('Test next token', () => {
 	const input = `let five = 5;
 let ten = 10;
 
