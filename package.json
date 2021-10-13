@@ -2,9 +2,10 @@
 	"name": "monkey-ts",
 	"author": "Baku Hashimoto <mail@baku89.com> (https://baku89.com)",
 	"scripts": {
-		"serve": "parcel src/index.html --no-cache --public-url / --dist-dir public",
+		"build": "parcel build src/main.ts --dist-dir dist",
 		"test": "jest"
 	},
+	"main": "dist/main.js",
 	"license": "MIT",
 	"devDependencies": {
 		"@parcel/transformer-stylus": "^2.0.0-nightly.845",
