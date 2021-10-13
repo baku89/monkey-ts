@@ -18,6 +18,9 @@ if (5 < 10) {
 } else {
 	return false;
 }
+
+10 == 10;
+10 != 9;
 `
 
 	const tests: {expectedType: TokenType; expectedLiteral: string}[] = [
@@ -91,6 +94,16 @@ if (5 < 10) {
 		{expectedType: TokenType.FALSE, expectedLiteral: 'false'},
 		{expectedType: TokenType.SEMICOLON, expectedLiteral: ';'},
 		{expectedType: TokenType.RBRACE, expectedLiteral: '}'},
+
+		{expectedType: TokenType.INT, expectedLiteral: '10'},
+		{expectedType: TokenType.EQ, expectedLiteral: '=='},
+		{expectedType: TokenType.INT, expectedLiteral: '10'},
+		{expectedType: TokenType.SEMICOLON, expectedLiteral: ';'},
+
+		{expectedType: TokenType.INT, expectedLiteral: '10'},
+		{expectedType: TokenType.NOT_EQ, expectedLiteral: '!='},
+		{expectedType: TokenType.INT, expectedLiteral: '9'},
+		{expectedType: TokenType.SEMICOLON, expectedLiteral: ';'},
 
 		{expectedType: TokenType.EOF, expectedLiteral: ''},
 	]
