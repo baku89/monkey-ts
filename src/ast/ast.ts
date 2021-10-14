@@ -99,3 +99,19 @@ export class Identifier implements Expression {
 		return this.value
 	}
 }
+
+export class IntegerLiteral implements Expression {
+	public constructor(public token: Token, public value: number) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return this.token.literal
+	}
+}

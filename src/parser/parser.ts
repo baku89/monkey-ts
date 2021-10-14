@@ -2,8 +2,8 @@ import * as ast from '../ast'
 import {Lexer} from '../lexer'
 import {Token, TokenType} from '../token'
 
-type PrefixParseFn = () => ast.Expression
-type InfixParseFn = (left: ast.Expression) => ast.Expression
+type PrefixParseFn = () => ast.Expression | null
+type InfixParseFn = (left: ast.Expression) => ast.Expression | null
 
 enum Priority {
 	LOWEST = 0,
@@ -31,6 +31,7 @@ export class Parser {
 		this.nextToken()
 
 		this.registerPrefix(TokenType.IDENT, this.parseIdentifier)
+		this.registerPrefix(TokenType.INT, this.parseIntegerLiteral)
 	}
 
 	public parseProgram(): ast.Program {
@@ -105,12 +106,25 @@ export class Parser {
 		if (!prefix) return null
 
 		const leftExp = prefix.call(this)
-
 		return leftExp
 	}
 
 	private parseIdentifier(): ast.Expression {
 		return new ast.Identifier(this.curToken, this.curToken.literal)
+	}
+
+	private parseIntegerLiteral(): ast.Expression | null {
+		const token = this.curToken
+
+		const value = parseInt(token.literal)
+
+		if (isNaN(value)) {
+			const msg = `Could not parse ${token.literal} as integer`
+			this.errors.push(msg)
+			return null
+		}
+
+		return new ast.IntegerLiteral(token, value)
 	}
 
 	private curTokenIs(tt: TokenType) {

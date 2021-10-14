@@ -81,3 +81,25 @@ test('Test identifier expression', () => {
 	expect((expr as ast.Identifier).value).toBe('foobar')
 	expect((expr as ast.Identifier).tokenLiteral()).toBe('foobar')
 })
+
+test('Test integer literal expression', () => {
+	const input = '5;'
+
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+
+	const stmt = program.statements[0]
+
+	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
+
+	const expr = (stmt as ast.ExpressionStatement).expression
+
+	expect(expr).toBeInstanceOf(ast.IntegerLiteral)
+	expect((expr as ast.IntegerLiteral).value).toBe(5)
+	expect((expr as ast.IntegerLiteral).tokenLiteral()).toBe('5')
+})
