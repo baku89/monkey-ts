@@ -142,3 +142,74 @@ function testIntegerLiteral(il: ast.Expression, value: number) {
 	expect(integ.value).toBe(value)
 	expect(integ.tokenLiteral()).toBe(value.toString())
 }
+
+test('Parsing infix expressions', () => {
+	testInfixExpression('5 + 5', 5, '+', 5)
+	testInfixExpression('5 - 5', 5, '-', 5)
+	testInfixExpression('5 * 5', 5, '*', 5)
+	testInfixExpression('5 / 5', 5, '/', 5)
+	testInfixExpression('5 > 5', 5, '>', 5)
+	testInfixExpression('5 < 5', 5, '<', 5)
+	testInfixExpression('5 == 5', 5, '==', 5)
+	testInfixExpression('5 != 5', 5, '!=', 5)
+})
+
+function testInfixExpression(
+	input: string,
+	leftValue: number,
+	operator: string,
+	rightValue: number
+) {
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+
+	const stmt = program.statements[0]
+
+	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
+
+	const exp = (stmt as ast.ExpressionStatement).expression
+
+	expect(exp).toBeInstanceOf(ast.InfixExpression)
+
+	const infix = exp as ast.InfixExpression
+
+	testIntegerLiteral(infix.left, leftValue)
+	expect(infix.operator).toBe(operator)
+	testIntegerLiteral(infix.right, rightValue)
+}
+
+test('Operator precedence parsing', () => {
+	testOperatorPrecedenceParsing('-a * b', '((-a) * b)')
+	testOperatorPrecedenceParsing('!-a', '(!(-a))')
+	testOperatorPrecedenceParsing('a + b + c', '((a + b) + c)')
+	testOperatorPrecedenceParsing('a * b * c', '((a * b) * c)')
+	testOperatorPrecedenceParsing('a * b / c', '((a * b) / c)')
+	testOperatorPrecedenceParsing('a + b / c', '(a + (b / c))')
+	testOperatorPrecedenceParsing(
+		'a + b * c + d / e - f',
+		'(((a + (b * c)) + (d / e)) - f)'
+	)
+	testOperatorPrecedenceParsing('3 + 4; -5 * 5', '(3 + 4)((-5) * 5)')
+	testOperatorPrecedenceParsing('5 > 4 == 3 < 4', '((5 > 4) == (3 < 4))')
+	testOperatorPrecedenceParsing('5 > 4 != 3 > 4', '((5 > 4) != (3 > 4))')
+	testOperatorPrecedenceParsing(
+		'3 + 4 * 5 == 3 * 4 + 4 * 5',
+		'((3 + (4 * 5)) == ((3 * 4) + (4 * 5)))'
+	)
+
+	function testOperatorPrecedenceParsing(input: string, expected: string) {
+		const l = new Lexer(input)
+		const p = new Parser(l)
+
+		const program = p.parseProgram()
+		checkParserErrors(p)
+
+		const actual = program.toString()
+		expect(actual).toBe(expected)
+	}
+})

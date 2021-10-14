@@ -5,7 +5,7 @@ import {Token, TokenType} from '../token'
 type PrefixParseFn = () => ast.Expression | null
 type InfixParseFn = (left: ast.Expression) => ast.Expression | null
 
-enum Precedence {
+enum Priority {
 	LOWEST = 0,
 	EQUALS,
 	LESSGREATER,
@@ -14,6 +14,17 @@ enum Precedence {
 	PREFIX,
 	CALL,
 }
+
+const Precedences = new Map<TokenType, Priority>([
+	[TokenType.EQ, Priority.EQUALS],
+	[TokenType.NOT_EQ, Priority.EQUALS],
+	[TokenType.LT, Priority.LESSGREATER],
+	[TokenType.GT, Priority.LESSGREATER],
+	[TokenType.PLUS, Priority.SUM],
+	[TokenType.MINUS, Priority.SUM],
+	[TokenType.SLASH, Priority.PRODUCT],
+	[TokenType.ASTERISK, Priority.PRODUCT],
+])
 
 export class Parser {
 	public lexer: Lexer
@@ -34,6 +45,15 @@ export class Parser {
 		this.registerPrefix(TokenType.INT, this.parseIntegerLiteral)
 		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
+
+		this.registerInfix(TokenType.PLUS, this.parseInfixExpression)
+		this.registerInfix(TokenType.MINUS, this.parseInfixExpression)
+		this.registerInfix(TokenType.SLASH, this.parseInfixExpression)
+		this.registerInfix(TokenType.ASTERISK, this.parseInfixExpression)
+		this.registerInfix(TokenType.EQ, this.parseInfixExpression)
+		this.registerInfix(TokenType.NOT_EQ, this.parseInfixExpression)
+		this.registerInfix(TokenType.LT, this.parseInfixExpression)
+		this.registerInfix(TokenType.GT, this.parseInfixExpression)
 	}
 
 	public parseProgram(): ast.Program {
@@ -93,7 +113,7 @@ export class Parser {
 
 	private parseExpressionStatement() {
 		const token = this.curToken
-		const expression = this.parseExpression(Precedence.LOWEST)
+		const expression = this.parseExpression(Priority.LOWEST)
 
 		if (this.peekTokenIs(TokenType.SEMICOLON)) {
 			this.nextToken()
@@ -102,7 +122,7 @@ export class Parser {
 		return new ast.ExpressionStatement(token, expression)
 	}
 
-	private parseExpression(precedence: Precedence): ast.Expression | null {
+	private parseExpression(precedence: Priority): ast.Expression | null {
 		const prefix = this.prefixParseFns.get(this.curToken.type)
 
 		if (!prefix) {
@@ -110,7 +130,20 @@ export class Parser {
 			return null
 		}
 
-		const leftExp = prefix.call(this)
+		let leftExp = prefix.call(this)
+
+		while (!this.peekTokenIs(TokenType.SEMICOLON)) {
+			if (precedence < this.peekPrecedence()) break
+			if (!leftExp) throw new Error()
+
+			const infix = this.infixParseFns.get(this.peekToken.type)
+			if (!infix) return leftExp
+
+			this.nextToken()
+
+			leftExp = infix.call(this, leftExp)
+		}
+
 		return leftExp
 	}
 
@@ -138,11 +171,24 @@ export class Parser {
 
 		this.nextToken()
 
-		const right = this.parseExpression(Precedence.PREFIX)
+		const right = this.parseExpression(Priority.PREFIX)
 
 		if (!right) throw new Error()
 
 		return new ast.PrefixExpression(token, operator, right)
+	}
+
+	private parseInfixExpression(left: ast.Expression) {
+		const token = this.curToken
+		const operator = token.literal
+
+		const precedence = this.curPrecedence()
+		this.nextToken()
+		const right = this.parseExpression(precedence)
+
+		if (!right) throw new Error()
+
+		return new ast.InfixExpression(token, left, operator, right)
 	}
 
 	private curTokenIs(tt: TokenType) {
@@ -184,5 +230,13 @@ export class Parser {
 
 	private registerInfix(tt: TokenType, fn: InfixParseFn) {
 		this.infixParseFns.set(tt, fn)
+	}
+
+	private peekPrecedence(): Priority {
+		return Precedences.get(this.peekToken.type) ?? Priority.LOWEST
+	}
+
+	private curPrecedence(): Priority {
+		return Precedences.get(this.curToken.type) ?? Priority.LOWEST
 	}
 }

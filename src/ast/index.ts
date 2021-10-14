@@ -80,7 +80,7 @@ export class ExpressionStatement implements Statement {
 	}
 
 	public toString() {
-		return ''
+		return this.expression?.toString() ?? ''
 	}
 }
 
@@ -133,5 +133,29 @@ export class PrefixExpression implements Expression {
 
 	public toString() {
 		return `(${this.operator}${this.right.toString()})`
+	}
+}
+
+export class InfixExpression implements Expression {
+	public constructor(
+		public token: Token,
+		public left: Expression,
+		public operator: string,
+		public right: Expression
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		const left = this.left.toString()
+		const op = this.operator
+		const right = this.right.toString()
+		return `(${left} ${op} ${right})`
 	}
 }
