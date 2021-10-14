@@ -1,3 +1,9 @@
-import {Identifier, LetStatement, Program, Statement} from './ast'
+import {
+	Identifier,
+	LetStatement,
+	Program,
+	ReturnStatement,
+	Statement,
+} from './ast'
 
-export {Program, Statement, LetStatement, Identifier}
+export {Program, Statement, LetStatement, ReturnStatement, Identifier}

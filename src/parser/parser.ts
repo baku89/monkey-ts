@@ -1,4 +1,4 @@
-import {Identifier, LetStatement, Program} from '../ast'
+import {Identifier, LetStatement, Program, ReturnStatement} from '../ast'
 import {Lexer} from '../lexer'
 import {Token, TokenType} from '../token'
 
@@ -31,6 +31,8 @@ export class Parser {
 		switch (this.curToken.type) {
 			case TokenType.LET:
 				return this.parseLetStatement()
+			case TokenType.RETURN:
+				return this.parseReturnStatement()
 			default:
 				return null
 		}
@@ -55,6 +57,17 @@ export class Parser {
 		}
 
 		return new LetStatement(token, name)
+	}
+
+	private parseReturnStatement() {
+		const token = this.curToken
+
+		// TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+		while (!this.curTokenIs(TokenType.SEMICOLON)) {
+			this.nextToken()
+		}
+
+		return new ReturnStatement(token)
 	}
 
 	private curTokenIs(tt: TokenType) {

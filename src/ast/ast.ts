@@ -36,6 +36,18 @@ export class LetStatement implements Statement {
 	}
 }
 
+export class ReturnStatement implements Statement {
+	public constructor(public token: Token) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public statementNode(): string {
+		throw new Error('Not yet implemented')
+	}
+}
+
 export class Identifier implements Expression {
 	public constructor(public token: Token, public value: string) {}
 
@@ -43,7 +55,7 @@ export class Identifier implements Expression {
 		return this.token.literal
 	}
 
-	public expressionNode() {
-		return ''
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
 	}
 }
