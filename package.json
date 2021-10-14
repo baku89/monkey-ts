@@ -3,6 +3,7 @@
 	"author": "Baku Hashimoto <mail@baku89.com> (https://baku89.com)",
 	"scripts": {
 		"build": "parcel build src/main.ts --dist-dir dist",
+		"watch": "parcel watch src/main.ts --dist-dir dist",
 		"test": "jest"
 	},
 	"main": "dist/main.js",
@@ -24,10 +25,16 @@
 		"parcel": "^2.0.0-nightly.843",
 		"prettier": "^2.3.2",
 		"ts-jest": "^27.0.5",
+		"ts-node": "^10.3.0",
 		"typescript": "^4.4.2",
 		"vue": "^3.2.9"
 	},
 	"browserslist": [
 		"since 2020-12"
-	]
+	],
+	"targets": {
+		"main": {
+			"context": "node"
+		}
+	}
 }

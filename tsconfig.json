@@ -11,12 +11,6 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"baseUrl": ".",
-		"typeRoots": ["node_modules/@types", "src"],
-		"types": ["node"],
-		"paths": {
-			"*": ["src/@types/*"],
-			"~/*": ["./*"]
-		},
 		"lib": ["esnext", "dom", "dom.iterable"]
 	},
 	"include": ["src/**/*.ts", "demo/**/*.ts"],
