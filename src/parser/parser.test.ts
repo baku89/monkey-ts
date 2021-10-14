@@ -2,7 +2,7 @@ import * as ast from '../ast'
 import {Lexer} from '../lexer'
 import {Parser} from './parser'
 
-test('Test let statements', () => {
+test('Let statements', () => {
 	const input = `
 let x = 5;
 let y = 10;
@@ -40,7 +40,7 @@ function checkParserErrors(p: Parser) {
 	expect(p.errors).toHaveLength(0)
 }
 
-test('Test return statements', () => {
+test('Return statements', () => {
 	const input = `
 return 5;
 return 10;
@@ -60,7 +60,7 @@ return 993322;
 	})
 })
 
-test('Test identifier expression', () => {
+test('Identifier expression', () => {
 	const input = 'foobar;'
 
 	const l = new Lexer(input)
@@ -82,7 +82,7 @@ test('Test identifier expression', () => {
 	expect((expr as ast.Identifier).tokenLiteral()).toBe('foobar')
 })
 
-test('Test integer literal expression', () => {
+test('Integer literal expression', () => {
 	const input = '5;'
 
 	const l = new Lexer(input)
@@ -97,9 +97,48 @@ test('Test integer literal expression', () => {
 
 	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
 
-	const expr = (stmt as ast.ExpressionStatement).expression
+	const exp = (stmt as ast.ExpressionStatement).expression
 
-	expect(expr).toBeInstanceOf(ast.IntegerLiteral)
-	expect((expr as ast.IntegerLiteral).value).toBe(5)
-	expect((expr as ast.IntegerLiteral).tokenLiteral()).toBe('5')
+	expect(exp).toBeInstanceOf(ast.IntegerLiteral)
+	expect((exp as ast.IntegerLiteral).value).toBe(5)
+	expect((exp as ast.IntegerLiteral).tokenLiteral()).toBe('5')
 })
+
+test('Parsing prefix expressions', () => {
+	testPrefixExpression('!5;', '!', 5)
+	testPrefixExpression('-15;', '-', 15)
+})
+
+function testPrefixExpression(
+	input: string,
+	operator: string,
+	integerValue: number
+) {
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+
+	const stmt = program.statements[0]
+
+	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
+
+	const exp = (stmt as ast.ExpressionStatement).expression
+
+	expect(exp).toBeInstanceOf(ast.PrefixExpression)
+	expect((exp as ast.PrefixExpression).operator).toBe(operator)
+
+	testIntegerLiteral((exp as ast.PrefixExpression).right, integerValue)
+}
+
+function testIntegerLiteral(il: ast.Expression, value: number) {
+	expect(il).toBeInstanceOf(ast.IntegerLiteral)
+
+	const integ = il as ast.IntegerLiteral
+
+	expect(integ.value).toBe(value)
+	expect(integ.tokenLiteral()).toBe(value.toString())
+}

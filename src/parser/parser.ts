@@ -5,7 +5,7 @@ import {Token, TokenType} from '../token'
 type PrefixParseFn = () => ast.Expression | null
 type InfixParseFn = (left: ast.Expression) => ast.Expression | null
 
-enum Priority {
+enum Precedence {
 	LOWEST = 0,
 	EQUALS,
 	LESSGREATER,
@@ -32,6 +32,8 @@ export class Parser {
 
 		this.registerPrefix(TokenType.IDENT, this.parseIdentifier)
 		this.registerPrefix(TokenType.INT, this.parseIntegerLiteral)
+		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
+		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
 	}
 
 	public parseProgram(): ast.Program {
@@ -91,7 +93,7 @@ export class Parser {
 
 	private parseExpressionStatement() {
 		const token = this.curToken
-		const expression = this.parseExpression(Priority.LOWEST)
+		const expression = this.parseExpression(Precedence.LOWEST)
 
 		if (this.peekTokenIs(TokenType.SEMICOLON)) {
 			this.nextToken()
@@ -100,10 +102,13 @@ export class Parser {
 		return new ast.ExpressionStatement(token, expression)
 	}
 
-	private parseExpression(priority: Priority): ast.Expression | null {
+	private parseExpression(precedence: Precedence): ast.Expression | null {
 		const prefix = this.prefixParseFns.get(this.curToken.type)
 
-		if (!prefix) return null
+		if (!prefix) {
+			this.noPrefixParseFnError(this.curToken.type)
+			return null
+		}
 
 		const leftExp = prefix.call(this)
 		return leftExp
@@ -125,6 +130,19 @@ export class Parser {
 		}
 
 		return new ast.IntegerLiteral(token, value)
+	}
+
+	private parsePrefixExpression(): ast.Expression | null {
+		const token = this.curToken
+		const operator = token.literal
+
+		this.nextToken()
+
+		const right = this.parseExpression(Precedence.PREFIX)
+
+		if (!right) throw new Error()
+
+		return new ast.PrefixExpression(token, operator, right)
 	}
 
 	private curTokenIs(tt: TokenType) {
@@ -152,6 +170,11 @@ export class Parser {
 
 	private peekError(tt: TokenType) {
 		const msg = `Expected next token to be ${tt}, got ${this.peekToken.type} instead`
+		this.errors.push(msg)
+	}
+
+	private noPrefixParseFnError(tt: TokenType) {
+		const msg = `No prefix parse function for ${tt} found`
 		this.errors.push(msg)
 	}
 
