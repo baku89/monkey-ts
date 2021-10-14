@@ -133,7 +133,7 @@ export class Parser {
 		let leftExp = prefix.call(this)
 
 		while (!this.peekTokenIs(TokenType.SEMICOLON)) {
-			if (precedence < this.peekPrecedence()) break
+			if (precedence >= this.peekPrecedence()) break
 			if (!leftExp) throw new Error()
 
 			const infix = this.infixParseFns.get(this.peekToken.type)
