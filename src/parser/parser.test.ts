@@ -14,7 +14,9 @@ let foobar = 838383;
 
 	const program = p.parseProgram()
 
-	expect(program.statements.length).toBe(3)
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(3)
 
 	const tests = ['x', 'y', 'foobar']
 
@@ -32,4 +34,8 @@ function testLetStatement(s: Statement, name: string) {
 	expect((s as LetStatement).name.value).toBe(name)
 
 	expect((s as LetStatement).name.tokenLiteral()).toBe(name)
+}
+
+function checkParserErrors(p: Parser) {
+	expect(p.errors).toHaveLength(0)
 }
