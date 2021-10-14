@@ -1,4 +1,5 @@
 import {
+	ExpressionStatement,
 	Identifier,
 	LetStatement,
 	Program,
@@ -6,4 +7,11 @@ import {
 	Statement,
 } from './ast'
 
-export {Program, Statement, LetStatement, ReturnStatement, Identifier}
+export {
+	Program,
+	Statement,
+	LetStatement,
+	ReturnStatement,
+	ExpressionStatement,
+	Identifier,
+}

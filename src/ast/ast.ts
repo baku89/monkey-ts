@@ -2,6 +2,7 @@ import {Token} from 'src/token'
 
 export interface Node {
 	tokenLiteral(): string
+	toString(): string
 }
 
 export interface Statement extends Node {
@@ -13,7 +14,7 @@ export interface Expression extends Node {
 }
 
 export class Program implements Node {
-	public statements: Statement[] = []
+	public constructor(public statements: Statement[] = []) {}
 
 	public tokenLiteral() {
 		if (this.statements.length > 0) {
@@ -22,17 +23,29 @@ export class Program implements Node {
 			return ''
 		}
 	}
+
+	public toString() {
+		return this.statements.map(s => s.toString()).join('')
+	}
 }
 
 export class LetStatement implements Statement {
-	public constructor(public token: Token, public name: Identifier) {}
+	public constructor(
+		public token: Token,
+		public name: Identifier,
+		public value: Expression | null = null
+	) {}
 
 	public tokenLiteral() {
 		return this.token.literal
 	}
 
-	public statementNode() {
-		return ''
+	public statementNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return `${this.tokenLiteral()} ${this.name.toString()} = ${this.value?.toString()};`
 	}
 }
 
@@ -46,6 +59,26 @@ export class ReturnStatement implements Statement {
 	public statementNode(): string {
 		throw new Error('Not yet implemented')
 	}
+
+	public toString() {
+		return `${this.tokenLiteral()} <value>;`
+	}
+}
+
+export class ExpressionStatement implements Statement {
+	public constructor(public token: Token) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public statementNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return ''
+	}
 }
 
 export class Identifier implements Expression {
@@ -57,5 +90,9 @@ export class Identifier implements Expression {
 
 	public expressionNode(): string {
 		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return this.value
 	}
 }
