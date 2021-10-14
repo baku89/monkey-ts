@@ -1,6 +1,6 @@
 import * as ast from '../ast'
 import {Lexer} from '../lexer'
-import {Parser} from './parser'
+import {Parser} from '.'
 
 test('Let statements', () => {
 	const input = `
