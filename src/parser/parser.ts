@@ -1,6 +1,19 @@
-import {Identifier, LetStatement, Program, ReturnStatement} from '../ast'
+import * as ast from '../ast'
 import {Lexer} from '../lexer'
 import {Token, TokenType} from '../token'
+
+type PrefixParseFn = () => ast.Expression
+type InfixParseFn = (left: ast.Expression) => ast.Expression
+
+enum Priority {
+	LOWEST = 0,
+	EQUALS,
+	LESSGREATER,
+	SUM,
+	PRODUCT,
+	PREFIX,
+	CALL,
+}
 
 export class Parser {
 	public lexer: Lexer
@@ -8,15 +21,20 @@ export class Parser {
 	public peekToken!: Token
 	public errors: string[] = []
 
+	private prefixParseFns = new Map<TokenType, PrefixParseFn>()
+	private infixParseFns = new Map<TokenType, InfixParseFn>()
+
 	public constructor(lexer: Lexer) {
 		this.lexer = lexer
 
 		this.nextToken()
 		this.nextToken()
+
+		this.registerPrefix(TokenType.IDENT, this.parseIdentifier)
 	}
 
-	public parseProgram(): Program {
-		const program = new Program()
+	public parseProgram(): ast.Program {
+		const program = new ast.Program()
 
 		while (!this.curTokenIs(TokenType.EOF)) {
 			const stmt = this.parseStatement()
@@ -34,7 +52,7 @@ export class Parser {
 			case TokenType.RETURN:
 				return this.parseReturnStatement()
 			default:
-				return null
+				return this.parseExpressionStatement()
 		}
 	}
 
@@ -45,7 +63,7 @@ export class Parser {
 			return null
 		}
 
-		const name = new Identifier(this.curToken, this.curToken.literal)
+		const name = new ast.Identifier(this.curToken, this.curToken.literal)
 
 		if (!this.expectPeek(TokenType.ASSIGN)) {
 			return null
@@ -56,7 +74,7 @@ export class Parser {
 			this.nextToken()
 		}
 
-		return new LetStatement(token, name)
+		return new ast.LetStatement(token, name)
 	}
 
 	private parseReturnStatement() {
@@ -67,7 +85,32 @@ export class Parser {
 			this.nextToken()
 		}
 
-		return new ReturnStatement(token)
+		return new ast.ReturnStatement(token)
+	}
+
+	private parseExpressionStatement() {
+		const token = this.curToken
+		const expression = this.parseExpression(Priority.LOWEST)
+
+		if (this.peekTokenIs(TokenType.SEMICOLON)) {
+			this.nextToken()
+		}
+
+		return new ast.ExpressionStatement(token, expression)
+	}
+
+	private parseExpression(priority: Priority): ast.Expression | null {
+		const prefix = this.prefixParseFns.get(this.curToken.type)
+
+		if (!prefix) return null
+
+		const leftExp = prefix.call(this)
+
+		return leftExp
+	}
+
+	private parseIdentifier(): ast.Expression {
+		return new ast.Identifier(this.curToken, this.curToken.literal)
 	}
 
 	private curTokenIs(tt: TokenType) {
@@ -96,5 +139,13 @@ export class Parser {
 	private peekError(tt: TokenType) {
 		const msg = `Expected next token to be ${tt}, got ${this.peekToken.type} instead`
 		this.errors.push(msg)
+	}
+
+	private registerPrefix(tt: TokenType, fn: PrefixParseFn) {
+		this.prefixParseFns.set(tt, fn)
+	}
+
+	private registerInfix(tt: TokenType, fn: InfixParseFn) {
+		this.infixParseFns.set(tt, fn)
 	}
 }

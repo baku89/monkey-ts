@@ -66,7 +66,10 @@ export class ReturnStatement implements Statement {
 }
 
 export class ExpressionStatement implements Statement {
-	public constructor(public token: Token) {}
+	public constructor(
+		public token: Token,
+		public expression: Expression | null
+	) {}
 
 	public tokenLiteral() {
 		return this.token.literal
