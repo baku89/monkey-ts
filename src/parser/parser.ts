@@ -17,7 +17,7 @@ export class Parser {
 	public parseProgram(): Program {
 		const program = new Program()
 
-		while (this.curToken.type !== TokenType.EOF) {
+		while (!this.curTokenIs(TokenType.EOF)) {
 			const stmt = this.parseStatement()
 			if (stmt) program.statements.push(stmt)
 			this.nextToken()
