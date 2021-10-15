@@ -49,6 +49,7 @@ export class Parser {
 		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
 		this.registerPrefix(TokenType.IF, this.parseIfExpression)
+		this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral)
 
 		this.registerInfix(TokenType.PLUS, this.parseInfixExpression)
 		this.registerInfix(TokenType.MINUS, this.parseInfixExpression)
@@ -228,6 +229,48 @@ export class Parser {
 		}
 
 		return new ast.IfExpression(token, condition, consequence, alternative)
+	}
+
+	private parseFunctionLiteral(): ast.Expression | null {
+		const token = this.curToken
+
+		if (!this.expectPeek(TokenType.LPAREN)) return null
+
+		const parameters = this.parseFunctionParameters()
+
+		if (!this.expectPeek(TokenType.LBRACE)) return null
+
+		const body = this.parseBlockStatement()
+
+		return new ast.FunctionLiteral(token, parameters, body)
+	}
+
+	private parseFunctionParameters(): ast.Identifier[] {
+		const identifiers: ast.Identifier[] = []
+
+		if (this.peekTokenIs(TokenType.RPAREN)) {
+			this.nextToken()
+			return identifiers
+		}
+
+		this.nextToken()
+
+		const ident = new ast.Identifier(this.curToken, this.curToken.literal)
+		identifiers.push(ident)
+
+		while (this.peekTokenIs(TokenType.COMMA)) {
+			this.nextToken()
+			this.nextToken()
+
+			const ident = new ast.Identifier(this.curToken, this.curToken.literal)
+			identifiers.push(ident)
+		}
+
+		if (!this.expectPeek(TokenType.RPAREN)) {
+			throw new Error('Canot parse function parameters')
+		}
+
+		return identifiers
 	}
 
 	private parseBlockStatement(): ast.BlockStatement {

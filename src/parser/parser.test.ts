@@ -365,3 +365,65 @@ test('if else expression', () => {
 
 	testIdentifier(alternativeStmt.expression as ast.Expression, 'y')
 })
+
+test('function literal parsing', () => {
+	const input = 'fn (x, y) { x + y; }'
+
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const stmt = program.statements[0] as ast.ExpressionStatement
+
+	expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
+
+	const fn = stmt.expression as ast.FunctionLiteral
+
+	expect(fn.parameters).toHaveLength(2)
+	testLiteralExpression(fn.parameters[0], 'x')
+	testLiteralExpression(fn.parameters[1], 'y')
+
+	expect(fn.body.statements).toHaveLength(1)
+
+	expect(fn.body.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const bodyStmt = fn.body.statements[0] as ast.ExpressionStatement
+
+	if (!bodyStmt.expression) throw new Error()
+
+	testInfixExpression(bodyStmt.expression, 'x', '+', 'y')
+})
+
+test('function parameter parsing', () => {
+	testFunctionParameterParsing('fn () {}', [])
+	testFunctionParameterParsing('fn (x) {}', ['x'])
+	testFunctionParameterParsing('fn (x, y, z) {}', ['x', 'y', 'z'])
+
+	function testFunctionParameterParsing(
+		input: string,
+		expectedParams: string[]
+	) {
+		const l = new Lexer(input)
+		const p = new Parser(l)
+
+		const program = p.parseProgram()
+		checkParserErrors(p)
+
+		expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+		const stmt = program.statements[0] as ast.ExpressionStatement
+
+		expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
+
+		const fn = stmt.expression as ast.FunctionLiteral
+
+		expect(fn.parameters).toHaveLength(expectedParams.length)
+
+		fn.parameters.forEach((p, i) => testIdentifier(p, expectedParams[i]))
+	}
+})

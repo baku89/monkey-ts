@@ -65,7 +65,7 @@ export class ReturnStatement implements Statement {
 	}
 }
 
-export class ExpressionStatement implements Statement {
+export class ExpressionStatement implements Statement, Expression {
 	public constructor(
 		public token: Token,
 		public expression: Expression | null
@@ -76,6 +76,10 @@ export class ExpressionStatement implements Statement {
 	}
 
 	public statementNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public expressionNode(): string {
 		throw new Error('Not yet implemented')
 	}
 
@@ -219,5 +223,31 @@ export class BlockStatement {
 
 	public toString() {
 		return this.statements.map(s => s.toString()).join('')
+	}
+}
+
+export class FunctionLiteral implements Expression {
+	public constructor(
+		public token: Token,
+		public parameters: Identifier[],
+		public body: BlockStatement
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		let str = this.tokenLiteral()
+		str += '('
+		str += this.parameters.map(s => s.toString()).join(', ')
+		str += ')'
+		str += this.body.toString()
+
+		return str
 	}
 }
