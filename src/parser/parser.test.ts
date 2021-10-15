@@ -258,6 +258,10 @@ test('Operator precedence parsing', () => {
 	testOperatorPrecedenceParsing('false', 'false')
 	testOperatorPrecedenceParsing('3 > 5 == false', '((3 > 5) == false)')
 	testOperatorPrecedenceParsing('3 < 5 == true', '((3 < 5) == true)')
+	testOperatorPrecedenceParsing('1 + (2 + 3) + 4', '((1 + (2 + 3)) + 4)')
+	testOperatorPrecedenceParsing('(5 + 5) * 2', '((5 + 5) * 2)')
+	testOperatorPrecedenceParsing('-(5 + 5)', '(-(5 + 5))')
+	testOperatorPrecedenceParsing('!(true == true)', '(!(true == true))')
 
 	function testOperatorPrecedenceParsing(input: string, expected: string) {
 		const l = new Lexer(input)

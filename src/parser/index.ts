@@ -47,6 +47,7 @@ export class Parser {
 		this.registerPrefix(TokenType.FALSE, this.parseBooleanLiteral)
 		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
+		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
 
 		this.registerInfix(TokenType.PLUS, this.parseInfixExpression)
 		this.registerInfix(TokenType.MINUS, this.parseInfixExpression)
@@ -185,6 +186,18 @@ export class Parser {
 		if (!right) throw new Error()
 
 		return new ast.PrefixExpression(token, operator, right)
+	}
+
+	private parseGroupedExpression(): ast.Expression | null {
+		this.nextToken()
+
+		const exp = this.parseExpression(Priority.LOWEST)
+
+		if (!this.expectPeek(TokenType.RPAREN)) {
+			return null
+		}
+
+		return exp
 	}
 
 	private parseInfixExpression(left: ast.Expression) {
