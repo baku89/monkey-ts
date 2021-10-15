@@ -58,14 +58,9 @@ test('identifier expression', () => {
 	const input = 'foobar;'
 
 	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(program.statements).toHaveLength(1)
-
-	const stmt = program.statements[0]
-
-	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-	const expr = (stmt as ast.ExpressionStatement).expression
+	const expr = stmt.expression
 
 	expect(expr).toBeInstanceOf(ast.Identifier)
 	expect((expr as ast.Identifier).value).toBe('foobar')
@@ -76,14 +71,9 @@ test('integer literal expression', () => {
 	const input = '5;'
 
 	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(program.statements).toHaveLength(1)
-
-	const stmt = program.statements[0]
-
-	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-	const exp = (stmt as ast.ExpressionStatement).expression
+	const exp = stmt.expression
 
 	expect(exp).toBeInstanceOf(ast.IntegerLiteral)
 	expect((exp as ast.IntegerLiteral).value).toBe(5)
@@ -102,14 +92,9 @@ test('parsing prefix expressions', () => {
 		expected: number | boolean
 	) {
 		const program = testParseProgram(input)
+		const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(program.statements).toHaveLength(1)
-
-		const stmt = program.statements[0]
-
-		expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-		const exp = (stmt as ast.ExpressionStatement).expression
+		const exp = stmt.expression
 
 		expect(exp).toBeInstanceOf(ast.PrefixExpression)
 
@@ -140,14 +125,9 @@ test('parsing infix expressions', () => {
 		rightValue: number | boolean
 	) {
 		const program = testParseProgram(input)
+		const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(program.statements).toHaveLength(1)
-
-		const stmt = program.statements[0]
-
-		expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-		const exp = (stmt as ast.ExpressionStatement).expression
+		const exp = stmt.expression
 
 		expect(exp).toBeInstanceOf(ast.InfixExpression)
 
@@ -204,11 +184,7 @@ test('boolean expressions', () => {
 
 	function testBooleanExpression(input: string, expected: boolean) {
 		const program = testParseProgram(input)
-
-		expect(program.statements).toHaveLength(1)
-		expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
-
-		const stmt = program.statements[0] as ast.ExpressionStatement
+		const stmt = testProgramHasOneExpressionStatement(program)
 
 		expect(stmt.expression).toBeInstanceOf(ast.BooleanLiteral)
 		expect((stmt.expression as ast.BooleanLiteral).value).toBe(expected)
@@ -219,11 +195,7 @@ test('if expression', () => {
 	const input = 'if (x < y) { x }'
 
 	const program = testParseProgram(input)
-
-	expect(program.statements).toHaveLength(1)
-	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
-
-	const stmt = program.statements[0] as ast.ExpressionStatement
+	const stmt = testProgramHasOneExpressionStatement(program)
 
 	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
 
@@ -244,11 +216,7 @@ test('if else expression', () => {
 	const input = 'if (x < y) { x } else { y }'
 
 	const program = testParseProgram(input)
-
-	expect(program.statements).toHaveLength(1)
-	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
-
-	const stmt = program.statements[0] as ast.ExpressionStatement
+	const stmt = testProgramHasOneExpressionStatement(program)
 
 	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
 
@@ -281,11 +249,7 @@ test('function literal parsing', () => {
 	const input = 'fn (x, y) { x + y; }'
 
 	const program = testParseProgram(input)
-
-	expect(program.statements).toHaveLength(1)
-	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
-
-	const stmt = program.statements[0] as ast.ExpressionStatement
+	const stmt = testProgramHasOneExpressionStatement(program)
 
 	expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
 
@@ -316,10 +280,7 @@ test('function parameter parsing', () => {
 		expectedParams: string[]
 	) {
 		const program = testParseProgram(input)
-
-		expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
-
-		const stmt = program.statements[0] as ast.ExpressionStatement
+		const stmt = testProgramHasOneExpressionStatement(program)
 
 		expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
 
@@ -339,6 +300,13 @@ function testParseProgram(input: string) {
 	checkParserErrors(p)
 
 	return program
+}
+
+function testProgramHasOneExpressionStatement(program: ast.Program) {
+	expect(program.statements).toHaveLength(1)
+	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	return program.statements[0] as ast.ExpressionStatement
 }
 
 function testLiteralExpression(
