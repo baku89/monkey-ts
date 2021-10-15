@@ -295,3 +295,73 @@ test('boolean expressions', () => {
 		expect((stmt.expression as ast.BooleanLiteral).value).toBe(expected)
 	}
 })
+
+test('if expression', () => {
+	const input = 'if (x < y) { x }'
+
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const stmt = program.statements[0] as ast.ExpressionStatement
+
+	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
+
+	const exp = stmt.expression as ast.IfExpression
+
+	testInfixExpression(exp.condition, 'x', '<', 'y')
+	expect(exp.consequence.statements).toHaveLength(1)
+	expect(exp.consequence.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const consequence = exp.consequence.statements[0] as ast.ExpressionStatement
+
+	testIdentifier(consequence.expression as ast.Expression, 'x')
+
+	expect(exp.alternative).toBeUndefined()
+})
+
+test('if else expression', () => {
+	const input = 'if (x < y) { x } else { y }'
+
+	const l = new Lexer(input)
+	const p = new Parser(l)
+
+	const program = p.parseProgram()
+	checkParserErrors(p)
+
+	expect(program.statements).toHaveLength(1)
+	expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const stmt = program.statements[0] as ast.ExpressionStatement
+
+	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
+
+	const exp = stmt.expression as ast.IfExpression
+
+	testInfixExpression(exp.condition, 'x', '<', 'y')
+
+	const {consequence} = exp
+
+	expect(consequence.statements).toHaveLength(1)
+	expect(consequence.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const consequenceStmt = consequence.statements[0] as ast.ExpressionStatement
+
+	testIdentifier(consequenceStmt.expression as ast.Expression, 'x')
+
+	expect(exp.alternative).toBeInstanceOf(ast.BlockStatement)
+
+	const alternative = exp.alternative as ast.BlockStatement
+
+	expect(alternative.statements).toHaveLength(1)
+	expect(alternative.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+	const alternativeStmt = alternative.statements[0] as ast.ExpressionStatement
+
+	testIdentifier(alternativeStmt.expression as ast.Expression, 'y')
+})

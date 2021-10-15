@@ -48,6 +48,7 @@ export class Parser {
 		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
+		this.registerPrefix(TokenType.IF, this.parseIfExpression)
 
 		this.registerInfix(TokenType.PLUS, this.parseInfixExpression)
 		this.registerInfix(TokenType.MINUS, this.parseInfixExpression)
@@ -65,6 +66,7 @@ export class Parser {
 		while (!this.curTokenIs(TokenType.EOF)) {
 			const stmt = this.parseStatement()
 			if (stmt) program.statements.push(stmt)
+
 			this.nextToken()
 		}
 
@@ -193,11 +195,59 @@ export class Parser {
 
 		const exp = this.parseExpression(Priority.LOWEST)
 
-		if (!this.expectPeek(TokenType.RPAREN)) {
-			return null
-		}
+		if (!this.expectPeek(TokenType.RPAREN)) return null
 
 		return exp
+	}
+
+	private parseIfExpression(): ast.Expression | null {
+		const token = this.curToken
+
+		if (!this.expectPeek(TokenType.LPAREN)) return null
+
+		this.nextToken()
+
+		const condition = this.parseExpression(Priority.LOWEST)
+
+		if (!condition) throw new Error()
+
+		if (!this.expectPeek(TokenType.RPAREN)) return null
+
+		if (!this.expectPeek(TokenType.LBRACE)) return null
+
+		const consequence = this.parseBlockStatement()
+
+		// Parse else statement
+		let alternative: ast.BlockStatement | undefined = undefined
+		if (this.peekTokenIs(TokenType.ELSE)) {
+			this.nextToken()
+
+			if (!this.expectPeek(TokenType.LBRACE)) return null
+
+			alternative = this.parseBlockStatement()
+		}
+
+		return new ast.IfExpression(token, condition, consequence, alternative)
+	}
+
+	private parseBlockStatement(): ast.BlockStatement {
+		const token = this.curToken
+
+		this.nextToken()
+
+		const block = new ast.BlockStatement(token)
+
+		while (
+			!this.curTokenIs(TokenType.RBRACE) &&
+			!this.curTokenIs(TokenType.EOF)
+		) {
+			const stmt = this.parseStatement()
+			if (stmt) block.statements.push(stmt)
+
+			this.nextToken()
+		}
+
+		return block
 	}
 
 	private parseInfixExpression(left: ast.Expression) {

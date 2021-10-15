@@ -4,7 +4,7 @@
 	"scripts": {
 		"build": "parcel build src/main.ts --dist-dir dist",
 		"watch": "parcel watch src/main.ts --dist-dir dist",
-		"test": "jest"
+		"test": "jest --slient=false"
 	},
 	"main": "dist/main.js",
 	"license": "MIT",

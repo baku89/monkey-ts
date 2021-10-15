@@ -175,3 +175,49 @@ export class InfixExpression implements Expression {
 		return `(${left} ${op} ${right})`
 	}
 }
+
+export class IfExpression implements Expression {
+	public constructor(
+		public token: Token, // 'if' token
+		public condition: Expression,
+		public consequence: BlockStatement,
+		public alternative?: BlockStatement
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		let str = `if ${this.condition} ${this.consequence}`
+
+		if (this.alternative) {
+			str += ` else ${this.alternative}`
+		}
+
+		return str
+	}
+}
+
+export class BlockStatement {
+	public constructor(
+		public token: Token,
+		public statements: Statement[] = []
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return this.statements.map(s => s.toString()).join('')
+	}
+}
