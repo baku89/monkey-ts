@@ -116,6 +116,22 @@ export class IntegerLiteral implements Expression {
 	}
 }
 
+export class BooleanLiteral implements Expression {
+	public constructor(public token: Token, public value: boolean) {}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public toString() {
+		return this.token.literal
+	}
+}
+
 export class PrefixExpression implements Expression {
 	public constructor(
 		public token: Token,

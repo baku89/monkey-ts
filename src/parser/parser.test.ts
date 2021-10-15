@@ -104,40 +104,46 @@ test('Integer literal expression', () => {
 	expect((exp as ast.IntegerLiteral).tokenLiteral()).toBe('5')
 })
 
-test('Parsing prefix expressions', () => {
-	testPrefixExpression('!5;', '!', 5)
-	testPrefixExpression('-15;', '-', 15)
+test('parsing prefix expressions', () => {
+	testParsingPrefixExpression('!5;', '!', 5)
+	testParsingPrefixExpression('-15;', '-', 15)
+	testParsingPrefixExpression('!true;', '!', true)
+	testParsingPrefixExpression('!false;', '!', false)
+
+	function testParsingPrefixExpression(
+		input: string,
+		operator: string,
+		expected: number | boolean
+	) {
+		const l = new Lexer(input)
+		const p = new Parser(l)
+
+		const program = p.parseProgram()
+		checkParserErrors(p)
+
+		expect(program.statements).toHaveLength(1)
+
+		const stmt = program.statements[0]
+
+		expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
+
+		const exp = (stmt as ast.ExpressionStatement).expression
+
+		expect(exp).toBeInstanceOf(ast.PrefixExpression)
+
+		const prefix = exp as ast.PrefixExpression
+
+		expect(prefix.operator).toBe(operator)
+		testLiteralExpression(prefix.right, expected)
+	}
 })
-
-function testPrefixExpression(
-	input: string,
-	operator: string,
-	integerValue: number
-) {
-	const l = new Lexer(input)
-	const p = new Parser(l)
-
-	const program = p.parseProgram()
-	checkParserErrors(p)
-
-	expect(program.statements).toHaveLength(1)
-
-	const stmt = program.statements[0]
-
-	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-	const exp = (stmt as ast.ExpressionStatement).expression
-
-	expect(exp).toBeInstanceOf(ast.PrefixExpression)
-	expect((exp as ast.PrefixExpression).operator).toBe(operator)
-
-	testIntegerLiteral((exp as ast.PrefixExpression).right, integerValue)
-}
 
 function testLiteralExpression(exp: ast.Expression, expected: any) {
 	switch (typeof expected) {
 		case 'number':
 			return testIntegerLiteral(exp, expected)
+		case 'boolean':
+			return testBooleanLiteral(exp, expected)
 		case 'string':
 			return testIdentifier(exp, expected)
 		default:
@@ -178,6 +184,15 @@ function testIntegerLiteral(il: ast.Expression, value: number) {
 	expect(integ.tokenLiteral()).toBe(value.toString())
 }
 
+function testBooleanLiteral(exp: ast.Expression, value: boolean) {
+	expect(exp).toBeInstanceOf(ast.BooleanLiteral)
+
+	const bool = exp as ast.BooleanLiteral
+
+	expect(bool.value).toBe(value)
+	expect(bool.tokenLiteral()).toBe(value.toString())
+}
+
 test('Parsing infix expressions', () => {
 	testParsingInfixExpression('5 + 5', 5, '+', 5)
 	testParsingInfixExpression('5 - 5', 5, '-', 5)
@@ -187,12 +202,15 @@ test('Parsing infix expressions', () => {
 	testParsingInfixExpression('5 < 5', 5, '<', 5)
 	testParsingInfixExpression('5 == 5', 5, '==', 5)
 	testParsingInfixExpression('5 != 5', 5, '!=', 5)
+	testParsingInfixExpression('true == true', true, '==', true)
+	testParsingInfixExpression('true != false', true, '!=', false)
+	testParsingInfixExpression('false == false', false, '==', false)
 
 	function testParsingInfixExpression(
 		input: string,
-		leftValue: number,
+		leftValue: number | boolean,
 		operator: string,
-		rightValue: number
+		rightValue: number | boolean
 	) {
 		const l = new Lexer(input)
 		const p = new Parser(l)
@@ -212,9 +230,9 @@ test('Parsing infix expressions', () => {
 
 		const infix = exp as ast.InfixExpression
 
-		testIntegerLiteral(infix.left, leftValue)
+		testLiteralExpression(infix.left, leftValue)
 		expect(infix.operator).toBe(operator)
-		testIntegerLiteral(infix.right, rightValue)
+		testLiteralExpression(infix.right, rightValue)
 	}
 })
 
@@ -236,6 +254,10 @@ test('Operator precedence parsing', () => {
 		'3 + 4 * 5 == 3 * 4 + 4 * 5',
 		'((3 + (4 * 5)) == ((3 * 4) + (4 * 5)))'
 	)
+	testOperatorPrecedenceParsing('true', 'true')
+	testOperatorPrecedenceParsing('false', 'false')
+	testOperatorPrecedenceParsing('3 > 5 == false', '((3 > 5) == false)')
+	testOperatorPrecedenceParsing('3 < 5 == true', '((3 < 5) == true)')
 
 	function testOperatorPrecedenceParsing(input: string, expected: string) {
 		const l = new Lexer(input)
@@ -246,5 +268,26 @@ test('Operator precedence parsing', () => {
 
 		const actual = program.toString()
 		expect(actual).toBe(expected)
+	}
+})
+
+test('boolean expressions', () => {
+	testBooleanExpression('true;', true)
+	testBooleanExpression('false;', false)
+
+	function testBooleanExpression(input: string, expected: boolean) {
+		const l = new Lexer(input)
+		const p = new Parser(l)
+
+		const program = p.parseProgram()
+		checkParserErrors(p)
+
+		expect(program.statements).toHaveLength(1)
+		expect(program.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
+
+		const stmt = program.statements[0] as ast.ExpressionStatement
+
+		expect(stmt.expression).toBeInstanceOf(ast.BooleanLiteral)
+		expect((stmt.expression as ast.BooleanLiteral).value).toBe(expected)
 	}
 })
