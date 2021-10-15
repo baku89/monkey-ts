@@ -134,6 +134,41 @@ function testPrefixExpression(
 	testIntegerLiteral((exp as ast.PrefixExpression).right, integerValue)
 }
 
+function testLiteralExpression(exp: ast.Expression, expected: any) {
+	switch (typeof expected) {
+		case 'number':
+			return testIntegerLiteral(exp, expected)
+		case 'string':
+			return testIdentifier(exp, expected)
+		default:
+			throw new Error(`Type of exp not handled. got=${typeof expected}`)
+	}
+}
+
+function testInfixExpression(
+	exp: ast.Expression,
+	left: any,
+	operator: string,
+	right: any
+) {
+	expect(exp).toBeInstanceOf(ast.InfixExpression)
+
+	const opExp = exp as ast.InfixExpression
+
+	testLiteralExpression(opExp.left, left)
+	expect(opExp.operator).toBe(operator)
+	testLiteralExpression(opExp.right, right)
+}
+
+function testIdentifier(exp: ast.Expression, value: string) {
+	expect(exp).toBeInstanceOf(ast.Identifier)
+
+	const ident = exp as ast.Identifier
+
+	expect(ident.value).toBe(value)
+	expect(ident.tokenLiteral()).toBe(value)
+}
+
 function testIntegerLiteral(il: ast.Expression, value: number) {
 	expect(il).toBeInstanceOf(ast.IntegerLiteral)
 
@@ -144,44 +179,44 @@ function testIntegerLiteral(il: ast.Expression, value: number) {
 }
 
 test('Parsing infix expressions', () => {
-	testInfixExpression('5 + 5', 5, '+', 5)
-	testInfixExpression('5 - 5', 5, '-', 5)
-	testInfixExpression('5 * 5', 5, '*', 5)
-	testInfixExpression('5 / 5', 5, '/', 5)
-	testInfixExpression('5 > 5', 5, '>', 5)
-	testInfixExpression('5 < 5', 5, '<', 5)
-	testInfixExpression('5 == 5', 5, '==', 5)
-	testInfixExpression('5 != 5', 5, '!=', 5)
+	testParsingInfixExpression('5 + 5', 5, '+', 5)
+	testParsingInfixExpression('5 - 5', 5, '-', 5)
+	testParsingInfixExpression('5 * 5', 5, '*', 5)
+	testParsingInfixExpression('5 / 5', 5, '/', 5)
+	testParsingInfixExpression('5 > 5', 5, '>', 5)
+	testParsingInfixExpression('5 < 5', 5, '<', 5)
+	testParsingInfixExpression('5 == 5', 5, '==', 5)
+	testParsingInfixExpression('5 != 5', 5, '!=', 5)
+
+	function testParsingInfixExpression(
+		input: string,
+		leftValue: number,
+		operator: string,
+		rightValue: number
+	) {
+		const l = new Lexer(input)
+		const p = new Parser(l)
+
+		const program = p.parseProgram()
+		checkParserErrors(p)
+
+		expect(program.statements).toHaveLength(1)
+
+		const stmt = program.statements[0]
+
+		expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
+
+		const exp = (stmt as ast.ExpressionStatement).expression
+
+		expect(exp).toBeInstanceOf(ast.InfixExpression)
+
+		const infix = exp as ast.InfixExpression
+
+		testIntegerLiteral(infix.left, leftValue)
+		expect(infix.operator).toBe(operator)
+		testIntegerLiteral(infix.right, rightValue)
+	}
 })
-
-function testInfixExpression(
-	input: string,
-	leftValue: number,
-	operator: string,
-	rightValue: number
-) {
-	const l = new Lexer(input)
-	const p = new Parser(l)
-
-	const program = p.parseProgram()
-	checkParserErrors(p)
-
-	expect(program.statements).toHaveLength(1)
-
-	const stmt = program.statements[0]
-
-	expect(stmt).toBeInstanceOf(ast.ExpressionStatement)
-
-	const exp = (stmt as ast.ExpressionStatement).expression
-
-	expect(exp).toBeInstanceOf(ast.InfixExpression)
-
-	const infix = exp as ast.InfixExpression
-
-	testIntegerLiteral(infix.left, leftValue)
-	expect(infix.operator).toBe(operator)
-	testIntegerLiteral(infix.right, rightValue)
-}
 
 test('Operator precedence parsing', () => {
 	testOperatorPrecedenceParsing('-a * b', '((-a) * b)')
