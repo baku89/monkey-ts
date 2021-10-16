@@ -33,7 +33,7 @@ export class LetStatement implements Statement {
 	public constructor(
 		public token: Token,
 		public name: Identifier,
-		public value: Expression | null = null
+		public value: Expression
 	) {}
 
 	public tokenLiteral() {
@@ -50,7 +50,7 @@ export class LetStatement implements Statement {
 }
 
 export class ReturnStatement implements Statement {
-	public constructor(public token: Token) {}
+	public constructor(public token: Token, public returnValue: Expression) {}
 
 	public tokenLiteral() {
 		return this.token.literal
@@ -61,7 +61,7 @@ export class ReturnStatement implements Statement {
 	}
 
 	public toString() {
-		return `${this.tokenLiteral()} <value>;`
+		return `${this.tokenLiteral()} ${this.returnValue.toString()};`
 	}
 }
 

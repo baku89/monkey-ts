@@ -100,23 +100,33 @@ export class Parser {
 			return null
 		}
 
-		// TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
-		while (!this.curTokenIs(TokenType.SEMICOLON)) {
+		this.nextToken()
+
+		const value = this.parseExpression(Priority.LOWEST)
+
+		if (!value) throw new Error()
+
+		if (this.peekTokenIs(TokenType.SEMICOLON)) {
 			this.nextToken()
 		}
 
-		return new ast.LetStatement(token, name)
+		return new ast.LetStatement(token, name, value)
 	}
 
 	private parseReturnStatement() {
 		const token = this.curToken
 
-		// TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
-		while (!this.curTokenIs(TokenType.SEMICOLON)) {
+		this.nextToken()
+
+		const returnValue = this.parseExpression(Priority.LOWEST)
+
+		if (!returnValue) throw new Error()
+
+		if (this.peekTokenIs(TokenType.SEMICOLON)) {
 			this.nextToken()
 		}
 
-		return new ast.ReturnStatement(token)
+		return new ast.ReturnStatement(token, returnValue)
 	}
 
 	private parseExpressionStatement() {

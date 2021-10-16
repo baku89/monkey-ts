@@ -12,22 +12,30 @@ let foobar = 838383;
 
 	expect(program.statements).toHaveLength(3)
 
-	const tests = ['x', 'y', 'foobar']
+	const tests: {ident: string; value: number}[] = [
+		{ident: 'x', value: 5},
+		{ident: 'y', value: 10},
+		{ident: 'foobar', value: 838383},
+	]
 
 	tests.forEach((tt, i) => {
 		const stmt = program.statements[i]
-		testLetStatement(stmt, tt)
+		testLetStatement(stmt, tt.ident, tt.value)
 	})
 })
 
-function testLetStatement(s: ast.Statement, name: string) {
+function testLetStatement(s: ast.Statement, ident: string, value: number) {
 	expect(s.tokenLiteral()).toBe('let')
 
 	expect(s).toBeInstanceOf(ast.LetStatement)
 
-	expect((s as ast.LetStatement).name.value).toBe(name)
+	const ls = s as ast.LetStatement
 
-	expect((s as ast.LetStatement).name.tokenLiteral()).toBe(name)
+	expect(ls.name.value).toBe(ident)
+
+	expect(ls.name.tokenLiteral()).toBe(ident)
+
+	testLiteralExpression(ls.value as any, value)
 }
 
 function checkParserErrors(p: Parser) {
@@ -48,9 +56,13 @@ return 993322;
 
 	expect(program.statements).toHaveLength(3)
 
-	program.statements.forEach(stmt => {
+	const tests = [5, 10, 993322]
+
+	tests.forEach((value, i) => {
+		const stmt = program.statements[i]
 		expect(stmt).toBeInstanceOf(ast.ReturnStatement)
 		expect(stmt.tokenLiteral()).toBe('return')
+		testLiteralExpression((stmt as ast.ReturnStatement).returnValue, value)
 	})
 })
 
