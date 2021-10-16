@@ -251,3 +251,28 @@ export class FunctionLiteral implements Expression {
 		return str
 	}
 }
+
+export class CallExpression implements Expression {
+	public constructor(
+		public token: Token, // '(' token
+		public fn: Expression, // Identifier or FunctionLiteral
+		public args: Expression[]
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		let str = this.fn.toString()
+		str += '('
+		str += this.args.map(s => s.toString()).join(', ')
+		str += ')'
+
+		return str
+	}
+}

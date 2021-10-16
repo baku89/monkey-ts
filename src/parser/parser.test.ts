@@ -366,3 +366,49 @@ function testBooleanLiteral(exp: ast.Expression, value: boolean) {
 	expect(bool.value).toBe(value)
 	expect(bool.tokenLiteral()).toBe(value.toString())
 }
+
+test('call expression parsing', () => {
+	const input = 'add(1, 2 * 3, 4 + 5)'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
+
+	const exp = stmt.expression as ast.CallExpression
+
+	testIdentifier(exp.fn, 'add')
+
+	expect(exp.args).toHaveLength(3)
+
+	testLiteralExpression(exp.args[0], 1)
+	testInfixExpression(exp.args[1], 2, '*', 3)
+	testInfixExpression(exp.args[2], 4, '+', 5)
+})
+
+test('call expression parameter parsing', () => {
+	runTest('add();', 'add', [])
+	runTest('add(1);', 'add', ['1'])
+	runTest('add(1, 2 * 3, 4 + 5);', 'add', ['1', '(2 * 3)', '(4 + 5)'])
+
+	function runTest(
+		input: string,
+		expectedIdent: string,
+		expectedArgs: string[]
+	) {
+		const program = testParseProgram(input)
+		const stmt = testProgramHasOneExpressionStatement(program)
+
+		expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
+
+		const exp = stmt.expression as ast.CallExpression
+
+		testIdentifier(exp.fn, expectedIdent)
+
+		expect(exp.args).toHaveLength(expectedArgs.length)
+
+		exp.args.forEach((p, i) => {
+			expect(p.toString()).toBe(expectedArgs[i])
+		})
+	}
+})

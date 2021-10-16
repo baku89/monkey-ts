@@ -24,6 +24,7 @@ const Precedences = new Map<TokenType, Priority>([
 	[TokenType.MINUS, Priority.SUM],
 	[TokenType.SLASH, Priority.PRODUCT],
 	[TokenType.ASTERISK, Priority.PRODUCT],
+	[TokenType.LPAREN, Priority.CALL],
 ])
 
 export class Parser {
@@ -59,6 +60,7 @@ export class Parser {
 		this.registerInfix(TokenType.NOT_EQ, this.parseInfixExpression)
 		this.registerInfix(TokenType.LT, this.parseInfixExpression)
 		this.registerInfix(TokenType.GT, this.parseInfixExpression)
+		this.registerInfix(TokenType.LPAREN, this.parseCallExpression)
 	}
 
 	public parseProgram(): ast.Program {
@@ -304,6 +306,41 @@ export class Parser {
 		if (!right) throw new Error()
 
 		return new ast.InfixExpression(token, left, operator, right)
+	}
+
+	private parseCallExpression(fn: ast.Expression) {
+		const token = this.curToken
+		const args = this.parseCallArguments()
+		return new ast.CallExpression(token, fn, args)
+	}
+
+	private parseCallArguments(): ast.Expression[] {
+		const args: ast.Expression[] = []
+
+		if (this.peekTokenIs(TokenType.RPAREN)) {
+			this.nextToken()
+			return args
+		}
+
+		this.nextToken()
+		const arg = this.parseExpression(Priority.LOWEST)
+		if (!arg) throw new Error()
+		args.push(arg)
+
+		while (this.peekTokenIs(TokenType.COMMA)) {
+			this.nextToken()
+			this.nextToken()
+
+			const arg = this.parseExpression(Priority.LOWEST)
+			if (!arg) throw new Error()
+			args.push(arg)
+		}
+
+		if (!this.expectPeek(TokenType.RPAREN)) {
+			throw new Error()
+		}
+
+		return args
 	}
 
 	private curTokenIs(tt: TokenType) {
