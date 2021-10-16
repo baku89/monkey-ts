@@ -1,25 +1,25 @@
 import repl from 'repl'
 
 import {Lexer} from '../lexer'
-import {Token, TokenType} from '../token'
+import {Parser} from '../parser'
 
 export function start() {
 	repl.start({
 		prompt: '>> ',
 		eval(input, context, file, cb) {
 			const l = new Lexer(input)
+			const p = new Parser(l)
 
-			const ret: Token[] = []
+			const program = p.parseProgram()
 
-			for (
-				let tok = l.nextToken();
-				tok.type !== TokenType.EOF;
-				tok = l.nextToken()
-			) {
-				ret.push(tok)
+			let err: Error | null = null
+
+			if (p.errors.length > 0) {
+				const msg = p.errors.join('\n')
+				err = new Error(msg)
 			}
 
-			cb(null, ret)
+			cb(err, program.toString())
 		},
 	})
 }
