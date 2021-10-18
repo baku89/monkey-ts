@@ -3,7 +3,7 @@ import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 import * as value from '../value'
 
-test('eval integer expression', () => {
+describe('eval integer expression', () => {
 	runTest('5', 5)
 	runTest('10', 10)
 	runTest('-5', -5)
@@ -19,12 +19,14 @@ test('eval integer expression', () => {
 	runTest('(5 + 10 * 2 + 15 / 3) * 2 - 10', 50)
 
 	function runTest(input: string, expected: number) {
-		const val = testEval(input)
-		testIntegerValue(val, expected)
+		test(`'${input}' to be ${expected}`, () => {
+			const val = testEval(input)
+			testIntegerValue(val, expected)
+		})
 	}
 })
 
-test('eval bool expression', () => {
+describe('eval bool expression', () => {
 	runTest('true', true)
 	runTest('false', false)
 	runTest('1 < 2', true)
@@ -46,12 +48,14 @@ test('eval bool expression', () => {
 	runTest('(1 > 2) == false', true)
 
 	function runTest(input: string, expected: boolean) {
-		const val = testEval(input)
-		testBoolValue(val, expected)
+		test(`'${input}' to be ${expected}`, () => {
+			const val = testEval(input)
+			testBoolValue(val, expected)
+		})
 	}
 })
 
-test('if-else expressions', () => {
+describe('if-else expressions', () => {
 	runTest('if (true) { 10 }', 10)
 	runTest('if (false) { 10 }', null)
 	runTest('if (1) { 10 }', 10)
@@ -61,21 +65,23 @@ test('if-else expressions', () => {
 	runTest('if (1 < 2) { 10 } else { 20 }', 10)
 
 	function runTest(input: string, expected: number | null) {
-		const val = testEval(input)
-		if (val.type === 'integer' && typeof expected === 'number') {
-			testIntegerValue(val, expected)
-			return
-		}
-		if (val.type === 'null' && expected === null) {
-			testNullValue(val)
-			return
-		}
+		test(`'${input}'' to be ${expected}`, () => {
+			const val = testEval(input)
+			if (val.type === 'integer' && typeof expected === 'number') {
+				testIntegerValue(val, expected)
+				return
+			}
+			if (val.type === 'null' && expected === null) {
+				testNullValue(val)
+				return
+			}
 
-		throw new Error('Invalid test')
+			throw new Error('Invalid test')
+		})
 	}
 })
 
-test('eval bang operator', () => {
+describe('eval bang operator', () => {
 	runTest('!true', false)
 	runTest('!false', true)
 	runTest('!5', false)
@@ -84,12 +90,14 @@ test('eval bang operator', () => {
 	runTest('!!5', true)
 
 	function runTest(input: string, expected: boolean) {
-		const val = testEval(input)
-		testBoolValue(val, expected)
+		test(`'${input}' to be ${expected}`, () => {
+			const val = testEval(input)
+			testBoolValue(val, expected)
+		})
 	}
 })
 
-test('return statements', () => {
+describe('return statements', () => {
 	runTest('return 10;', 10)
 	runTest('return 10; 9;', 10)
 	runTest('return 2 * 5; 9;', 10)
@@ -107,8 +115,10 @@ if (10 > 1) {
 	)
 
 	function runTest(input: string, expected: number) {
-		const val = testEval(input)
-		testIntegerValue(val, expected)
+		test(`'${input}' to be ${expected}`, () => {
+			const val = testEval(input)
+			testIntegerValue(val, expected)
+		})
 	}
 })
 

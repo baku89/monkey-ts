@@ -117,89 +117,93 @@ test('parsing prefix expressions', () => {
 	}
 })
 
-test('parsing infix expressions', () => {
-	testParsingInfixExpression('5 + 5', 5, '+', 5)
-	testParsingInfixExpression('5 - 5', 5, '-', 5)
-	testParsingInfixExpression('5 * 5', 5, '*', 5)
-	testParsingInfixExpression('5 / 5', 5, '/', 5)
-	testParsingInfixExpression('5 > 5', 5, '>', 5)
-	testParsingInfixExpression('5 < 5', 5, '<', 5)
-	testParsingInfixExpression('5 == 5', 5, '==', 5)
-	testParsingInfixExpression('5 != 5', 5, '!=', 5)
-	testParsingInfixExpression('true == true', true, '==', true)
-	testParsingInfixExpression('true != false', true, '!=', false)
-	testParsingInfixExpression('false == false', false, '==', false)
+describe('parsing infix expressions', () => {
+	runTest('5 + 5', 5, '+', 5)
+	runTest('5 - 5', 5, '-', 5)
+	runTest('5 * 5', 5, '*', 5)
+	runTest('5 / 5', 5, '/', 5)
+	runTest('5 > 5', 5, '>', 5)
+	runTest('5 < 5', 5, '<', 5)
+	runTest('5 == 5', 5, '==', 5)
+	runTest('5 != 5', 5, '!=', 5)
+	runTest('true == true', true, '==', true)
+	runTest('true != false', true, '!=', false)
+	runTest('false == false', false, '==', false)
 
-	function testParsingInfixExpression(
+	function runTest(
 		input: string,
 		leftValue: number | boolean,
 		operator: string,
 		rightValue: number | boolean
 	) {
-		const program = testParseProgram(input)
-		const stmt = testProgramHasOneExpressionStatement(program)
+		const expected = `${leftValue} ${operator} ${rightValue}`
+		test(`'${input}' to be parsed as ${expected}`, () => {
+			const program = testParseProgram(input)
+			const stmt = testProgramHasOneExpressionStatement(program)
 
-		const exp = stmt.expression
+			const exp = stmt.expression
 
-		expect(exp).toBeInstanceOf(ast.InfixExpression)
+			expect(exp).toBeInstanceOf(ast.InfixExpression)
 
-		const infix = exp as ast.InfixExpression
+			const infix = exp as ast.InfixExpression
 
-		testLiteralExpression(infix.left, leftValue)
-		expect(infix.operator).toBe(operator)
-		testLiteralExpression(infix.right, rightValue)
+			testLiteralExpression(infix.left, leftValue)
+			expect(infix.operator).toBe(operator)
+			testLiteralExpression(infix.right, rightValue)
+		})
 	}
 })
 
-test('operator precedence parsing', () => {
-	testOperatorPrecedenceParsing('-a * b', '((-a) * b)')
-	testOperatorPrecedenceParsing('!-a', '(!(-a))')
-	testOperatorPrecedenceParsing('a + b + c', '((a + b) + c)')
-	testOperatorPrecedenceParsing('a * b * c', '((a * b) * c)')
-	testOperatorPrecedenceParsing('a * b / c', '((a * b) / c)')
-	testOperatorPrecedenceParsing('a + b / c', '(a + (b / c))')
-	testOperatorPrecedenceParsing(
-		'a + b * c + d / e - f',
-		'(((a + (b * c)) + (d / e)) - f)'
-	)
-	testOperatorPrecedenceParsing('3 + 4; -5 * 5', '(3 + 4)((-5) * 5)')
-	testOperatorPrecedenceParsing('5 > 4 == 3 < 4', '((5 > 4) == (3 < 4))')
-	testOperatorPrecedenceParsing('5 > 4 != 3 > 4', '((5 > 4) != (3 > 4))')
-	testOperatorPrecedenceParsing(
+describe('operator precedence parsing', () => {
+	runTest('-a * b', '((-a) * b)')
+	runTest('!-a', '(!(-a))')
+	runTest('a + b + c', '((a + b) + c)')
+	runTest('a * b * c', '((a * b) * c)')
+	runTest('a * b / c', '((a * b) / c)')
+	runTest('a + b / c', '(a + (b / c))')
+	runTest('a + b * c + d / e - f', '(((a + (b * c)) + (d / e)) - f)')
+	runTest('3 + 4; -5 * 5', '(3 + 4)((-5) * 5)')
+	runTest('5 > 4 == 3 < 4', '((5 > 4) == (3 < 4))')
+	runTest('5 > 4 != 3 > 4', '((5 > 4) != (3 > 4))')
+	runTest(
 		'3 + 4 * 5 == 3 * 4 + 4 * 5',
 		'((3 + (4 * 5)) == ((3 * 4) + (4 * 5)))'
 	)
-	testOperatorPrecedenceParsing('true', 'true')
-	testOperatorPrecedenceParsing('false', 'false')
-	testOperatorPrecedenceParsing('3 > 5 == false', '((3 > 5) == false)')
-	testOperatorPrecedenceParsing('3 < 5 == true', '((3 < 5) == true)')
-	testOperatorPrecedenceParsing('1 + (2 + 3) + 4', '((1 + (2 + 3)) + 4)')
-	testOperatorPrecedenceParsing('(5 + 5) * 2', '((5 + 5) * 2)')
-	testOperatorPrecedenceParsing('-(5 + 5)', '(-(5 + 5))')
-	testOperatorPrecedenceParsing('!(true == true)', '(!(true == true))')
+	runTest('true', 'true')
+	runTest('false', 'false')
+	runTest('3 > 5 == false', '((3 > 5) == false)')
+	runTest('3 < 5 == true', '((3 < 5) == true)')
+	runTest('1 + (2 + 3) + 4', '((1 + (2 + 3)) + 4)')
+	runTest('(5 + 5) * 2', '((5 + 5) * 2)')
+	runTest('-(5 + 5)', '(-(5 + 5))')
+	runTest('!(true == true)', '(!(true == true))')
 
-	function testOperatorPrecedenceParsing(input: string, expected: string) {
-		const l = new Lexer(input)
-		const p = new Parser(l)
+	function runTest(input: string, expected: string) {
+		test(`'${input}' to be parsed as ${expected}`, () => {
+			const l = new Lexer(input)
+			const p = new Parser(l)
 
-		const program = p.parseProgram()
-		checkParserErrors(p)
+			const program = p.parseProgram()
+			checkParserErrors(p)
 
-		const actual = program.toString()
-		expect(actual).toBe(expected)
+			const actual = program.toString()
+			expect(actual).toBe(expected)
+		})
 	}
 })
 
-test('bool expressions', () => {
-	testBoolExpression('true;', true)
-	testBoolExpression('false;', false)
+describe('bool expressions', () => {
+	runTest('true;', true)
+	runTest('false;', false)
 
-	function testBoolExpression(input: string, expected: boolean) {
-		const program = testParseProgram(input)
-		const stmt = testProgramHasOneExpressionStatement(program)
+	function runTest(input: string, expected: boolean) {
+		test(`'${input}' to be parsed as ${expected}`, () => {
+			const program = testParseProgram(input)
+			const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(stmt.expression).toBeInstanceOf(ast.BoolLiteral)
-		expect((stmt.expression as ast.BoolLiteral).value).toBe(expected)
+			expect(stmt.expression).toBeInstanceOf(ast.BoolLiteral)
+			expect((stmt.expression as ast.BoolLiteral).value).toBe(expected)
+		})
 	}
 })
 
@@ -282,25 +286,25 @@ test('function literal parsing', () => {
 	testInfixExpression(bodyStmt.expression, 'x', '+', 'y')
 })
 
-test('function parameter parsing', () => {
-	testFunctionParameterParsing('fn () {}', [])
-	testFunctionParameterParsing('fn (x) {}', ['x'])
-	testFunctionParameterParsing('fn (x, y, z) {}', ['x', 'y', 'z'])
+describe('function parameter parsing', () => {
+	runTest('fn () {}', [])
+	runTest('fn (x) {}', ['x'])
+	runTest('fn (x, y, z) {}', ['x', 'y', 'z'])
 
-	function testFunctionParameterParsing(
-		input: string,
-		expectedParams: string[]
-	) {
-		const program = testParseProgram(input)
-		const stmt = testProgramHasOneExpressionStatement(program)
+	function runTest(input: string, expectedParams: string[]) {
+		const expected = '[' + expectedParams.join(',') + ']'
+		test(`parameters of '${input}' to be parsed as ${expected}`, () => {
+			const program = testParseProgram(input)
+			const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
+			expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
 
-		const fn = stmt.expression as ast.FunctionLiteral
+			const fn = stmt.expression as ast.FunctionLiteral
 
-		expect(fn.parameters).toHaveLength(expectedParams.length)
+			expect(fn.parameters).toHaveLength(expectedParams.length)
 
-		fn.parameters.forEach((p, i) => testIdentifier(p, expectedParams[i]))
+			fn.parameters.forEach((p, i) => testIdentifier(p, expectedParams[i]))
+		})
 	}
 })
 
@@ -398,7 +402,7 @@ test('call expression parsing', () => {
 	testInfixExpression(exp.args[2], 4, '+', 5)
 })
 
-test('call expression parameter parsing', () => {
+describe('call expression parameter parsing', () => {
 	runTest('add();', 'add', [])
 	runTest('add(1);', 'add', ['1'])
 	runTest('add(1, 2 * 3, 4 + 5);', 'add', ['1', '(2 * 3)', '(4 + 5)'])
@@ -408,19 +412,22 @@ test('call expression parameter parsing', () => {
 		expectedIdent: string,
 		expectedArgs: string[]
 	) {
-		const program = testParseProgram(input)
-		const stmt = testProgramHasOneExpressionStatement(program)
+		const expectedArgsStr = '[' + expectedArgs.join(',') + ']'
+		test(`'${input}' to be parsed as fn=${expectedIdent}, args=${expectedArgsStr}`, () => {
+			const program = testParseProgram(input)
+			const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
+			expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
 
-		const exp = stmt.expression as ast.CallExpression
+			const exp = stmt.expression as ast.CallExpression
 
-		testIdentifier(exp.fn, expectedIdent)
+			testIdentifier(exp.fn, expectedIdent)
 
-		expect(exp.args).toHaveLength(expectedArgs.length)
+			expect(exp.args).toHaveLength(expectedArgs.length)
 
-		exp.args.forEach((p, i) => {
-			expect(p.toString()).toBe(expectedArgs[i])
+			exp.args.forEach((p, i) => {
+				expect(p.toString()).toBe(expectedArgs[i])
+			})
 		})
 	}
 })
