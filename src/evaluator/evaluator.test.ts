@@ -8,6 +8,15 @@ test('eval integer expression', () => {
 	runTest('10', 10)
 	runTest('-5', -5)
 	runTest('-10', -10)
+	runTest('5 + 5 + 5 + 5 - 10', 10)
+	runTest('2 * 2 * 2 * 2 * 2', 32)
+	runTest('-50 + 100 + -50', 0)
+	runTest('5 * 2 + 10', 20)
+	runTest('5 + 2 * 10', 25)
+	runTest('20 + 2 * -10', 0)
+	runTest('2 * (5 + 10)', 30)
+	runTest('3 * 3 * 3 + 10', 37)
+	runTest('(5 + 10 * 2 + 15 / 3) * 2 - 10', 50)
 
 	function runTest(input: string, expected: number) {
 		const val = testEval(input)
@@ -15,9 +24,26 @@ test('eval integer expression', () => {
 	}
 })
 
-test('eval boolean expression', () => {
+test('eval bool expression', () => {
 	runTest('true', true)
 	runTest('false', false)
+	runTest('1 < 2', true)
+	runTest('1 > 2', false)
+	runTest('1 < 1', false)
+	runTest('1 > 1', false)
+	runTest('1 == 1', true)
+	runTest('1 != 1', false)
+	runTest('1 == 2', false)
+	runTest('1 != 2', true)
+	runTest('true == true', true)
+	runTest('false == false', true)
+	runTest('true == false', false)
+	runTest('true != false', true)
+	runTest('false != true', true)
+	runTest('(1 < 2) == true', true)
+	runTest('(1 < 2) == false', false)
+	runTest('(1 > 2) == true', false)
+	runTest('(1 > 2) == false', true)
 
 	function runTest(input: string, expected: boolean) {
 		const val = testEval(input)

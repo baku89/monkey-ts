@@ -13,13 +13,21 @@ export function evaluate(node: ast.Node): Value {
 	} else if (node instanceof ast.IntegerLiteral) {
 		return new value.Integer(node.value)
 	} else if (node instanceof ast.BoolLiteral) {
-		return node.value ? TRUE : FALSE
+		return nativeBoolToBoolValue(node.value)
 	} else if (node instanceof ast.PrefixExpression) {
 		const right = evaluate(node.right)
 		return evalPrefixExpression(node.operator, right)
+	} else if (node instanceof ast.InfixExpression) {
+		const left = evaluate(node.left)
+		const right = evaluate(node.right)
+		return evalInfixExpression(node.operator, left, right)
 	}
 
 	return NULL
+}
+
+function nativeBoolToBoolValue(value: boolean): value.Bool {
+	return value ? TRUE : FALSE
 }
 
 function evaluateStatements(stmts: ast.Statement[]): Value {
@@ -58,4 +66,46 @@ function evalMinusPrefixOperatorExpression(right: Value): Value {
 	}
 
 	return new value.Integer(-right.value)
+}
+
+function evalInfixExpression(operator: string, left: Value, right: Value) {
+	if (left.type === 'integer' && right.type === 'integer') {
+		return evalIntegerInfixExpression(operator, left, right)
+	}
+
+	switch (operator) {
+		case '==':
+			return nativeBoolToBoolValue(left === right)
+		case '!=':
+			return nativeBoolToBoolValue(left !== right)
+	}
+
+	return NULL
+}
+
+function evalIntegerInfixExpression(
+	operator: string,
+	left: value.Integer,
+	right: value.Integer
+) {
+	switch (operator) {
+		case '+':
+			return new value.Integer(left.value + right.value)
+		case '-':
+			return new value.Integer(left.value - right.value)
+		case '*':
+			return new value.Integer(left.value * right.value)
+		case '/':
+			return new value.Integer(left.value / right.value)
+		case '<':
+			return nativeBoolToBoolValue(left.value < right.value)
+		case '>':
+			return nativeBoolToBoolValue(left.value > right.value)
+		case '==':
+			return nativeBoolToBoolValue(left.value === right.value)
+		case '!=':
+			return nativeBoolToBoolValue(left.value !== right.value)
+		default:
+			return NULL
+	}
 }
