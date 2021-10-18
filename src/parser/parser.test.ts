@@ -24,7 +24,7 @@ let foobar = 838383;
 	})
 })
 
-function testLetStatement(s: ast.Statement, ident: string, value: number) {
+function testLetStatement(s: ast.Node, ident: string, value: number) {
 	expect(s.tokenLiteral()).toBe('let')
 
 	expect(s).toBeInstanceOf(ast.LetStatement)
@@ -267,9 +267,9 @@ test('function literal parsing', () => {
 	const program = testParseProgram(input)
 	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
+	expect(stmt.expression).toBeInstanceOf(ast.FnLiteral)
 
-	const fn = stmt.expression as ast.FunctionLiteral
+	const fn = stmt.expression as ast.FnLiteral
 
 	expect(fn.parameters).toHaveLength(2)
 	testLiteralExpression(fn.parameters[0], 'x')
@@ -297,9 +297,9 @@ describe('function parameter parsing', () => {
 			const program = testParseProgram(input)
 			const stmt = testProgramHasOneExpressionStatement(program)
 
-			expect(stmt.expression).toBeInstanceOf(ast.FunctionLiteral)
+			expect(stmt.expression).toBeInstanceOf(ast.FnLiteral)
 
-			const fn = stmt.expression as ast.FunctionLiteral
+			const fn = stmt.expression as ast.FnLiteral
 
 			expect(fn.parameters).toHaveLength(expectedParams.length)
 

@@ -6,52 +6,47 @@ export const TRUE = new value.Bool(true)
 export const FALSE = new value.Bool(false)
 
 export function evaluate(node: ast.Node, env: value.Env): value.Value {
-	if (node instanceof ast.Program) {
-		return evalProgram(node, env)
-	}
-	if (node instanceof ast.ExpressionStatement) {
-		return evaluate(node.expression, env)
-	}
-	if (node instanceof ast.IntegerLiteral) {
-		return new value.Integer(node.value)
-	}
-	if (node instanceof ast.BoolLiteral) {
-		return nativeBoolToBoolValue(node.value)
-	}
-	if (node instanceof ast.PrefixExpression) {
-		const right = evaluate(node.right, env)
-		if (isError(right)) return right
-		return evalPrefixExpression(node.operator, right)
-	}
-	if (node instanceof ast.InfixExpression) {
-		const left = evaluate(node.left, env)
-		if (isError(left)) return left
-		const right = evaluate(node.right, env)
-		if (isError(right)) return right
-		return evalInfixExpression(node.operator, left, right)
-	}
-	if (node instanceof ast.BlockStatement) {
-		return evalBlockStatement(node, env)
-	}
-	if (node instanceof ast.IfExpression) {
-		return evalIfExpression(node, env)
-	}
-	if (node instanceof ast.ReturnStatement) {
-		const val = evaluate(node.returnValue, env)
-		if (isError(val)) return val
-		return new value.Return(val)
-	}
-	if (node instanceof ast.LetStatement) {
-		const val = evaluate(node.value, env)
-		if (isError(val)) return val
-
-		env.set(node.name.value, val)
-	}
-	if (node instanceof ast.Identifier) {
-		return evalIdentifier(node, env)
-	}
-	if (node instanceof ast.FunctionLiteral) {
-		return new value.Fn(node.parameters, node.body, env)
+	switch (node.type) {
+		case 'program':
+			return evalProgram(node, env)
+		case 'integerLiteral':
+			return new value.Integer(node.value)
+		case 'boolLiteral':
+			return nativeBoolToBoolValue(node.value)
+		case 'prefixExpression': {
+			const right = evaluate(node.right, env)
+			if (isError(right)) return right
+			return evalPrefixExpression(node.operator, right)
+		}
+		case 'infixExpression': {
+			node.left
+			const left = evaluate(node.left, env)
+			if (isError(left)) return left
+			const right = evaluate(node.right, env)
+			if (isError(right)) return right
+			return evalInfixExpression(node.operator, left, right)
+		}
+		case 'ifExpression':
+			return evalIfExpression(node, env)
+		case 'expressionStatement':
+			return evaluate(node.expression, env)
+		case 'blockStatement':
+			return evalBlockStatement(node, env)
+		case 'returnStatement': {
+			const val = evaluate(node.returnValue, env)
+			if (isError(val)) return val
+			return new value.Return(val)
+		}
+		case 'letStatement': {
+			const val = evaluate(node.value, env)
+			if (isError(val)) return val
+			env.set(node.name.value, val)
+			break
+		}
+		case 'identifier':
+			return evalIdentifier(node, env)
+		case 'fnLiteral':
+			return new value.Fn(node.parameters, node.body, env)
 	}
 
 	return NULL

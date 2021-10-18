@@ -167,11 +167,11 @@ export class Parser {
 		return leftExp
 	}
 
-	private parseIdentifier(): ast.Expression {
+	private parseIdentifier() {
 		return new ast.Identifier(this.curToken, this.curToken.literal)
 	}
 
-	private parseIntegerLiteral(): ast.Expression | null {
+	private parseIntegerLiteral() {
 		const token = this.curToken
 
 		const value = parseInt(token.literal)
@@ -253,7 +253,7 @@ export class Parser {
 
 		const body = this.parseBlockStatement()
 
-		return new ast.FunctionLiteral(token, parameters, body)
+		return new ast.FnLiteral(token, parameters, body)
 	}
 
 	private parseFunctionParameters(): ast.Identifier[] {

@@ -1,19 +1,39 @@
-import {Token} from 'src/token'
+import {Token} from '../token'
 
-export interface Node {
+export type Node = Program | Statement | Expression
+
+type Statement =
+	| LetStatement
+	| ReturnStatement
+	| ExpressionStatement
+	| BlockStatement
+
+export type Expression =
+	| Identifier
+	| PrefixExpression
+	| InfixExpression
+	| IfExpression
+	| CallExpression
+	| IntegerLiteral
+	| BoolLiteral
+	| FnLiteral
+
+interface INode {
 	tokenLiteral(): string
 	toString(): string
 }
 
-export interface Statement extends Node {
+interface IStatement extends INode {
 	statementNode(): string
 }
 
-export interface Expression extends Node {
+interface IExpression extends INode {
 	expressionNode(): string
 }
 
-export class Program implements Node {
+export class Program implements INode {
+	public type: 'program' = 'program'
+
 	public constructor(public statements: Statement[] = []) {}
 
 	public tokenLiteral() {
@@ -29,7 +49,9 @@ export class Program implements Node {
 	}
 }
 
-export class LetStatement implements Statement {
+export class LetStatement implements IStatement {
+	public type: 'letStatement' = 'letStatement'
+
 	public constructor(
 		public token: Token,
 		public name: Identifier,
@@ -49,7 +71,9 @@ export class LetStatement implements Statement {
 	}
 }
 
-export class ReturnStatement implements Statement {
+export class ReturnStatement implements IStatement {
+	public type: 'returnStatement' = 'returnStatement'
+
 	public constructor(public token: Token, public returnValue: Expression) {}
 
 	public tokenLiteral() {
@@ -65,7 +89,9 @@ export class ReturnStatement implements Statement {
 	}
 }
 
-export class ExpressionStatement implements Statement, Expression {
+export class ExpressionStatement implements IStatement, IExpression {
+	public type: 'expressionStatement' = 'expressionStatement'
+
 	public constructor(public token: Token, public expression: Expression) {}
 
 	public tokenLiteral() {
@@ -85,7 +111,9 @@ export class ExpressionStatement implements Statement, Expression {
 	}
 }
 
-export class Identifier implements Expression {
+export class Identifier implements IExpression {
+	public type: 'identifier' = 'identifier'
+
 	public constructor(public token: Token, public value: string) {}
 
 	public tokenLiteral() {
@@ -101,7 +129,9 @@ export class Identifier implements Expression {
 	}
 }
 
-export class IntegerLiteral implements Expression {
+export class IntegerLiteral implements IExpression {
+	public type: 'integerLiteral' = 'integerLiteral'
+
 	public constructor(public token: Token, public value: number) {}
 
 	public tokenLiteral() {
@@ -117,7 +147,9 @@ export class IntegerLiteral implements Expression {
 	}
 }
 
-export class BoolLiteral implements Expression {
+export class BoolLiteral implements IExpression {
+	public type: 'boolLiteral' = 'boolLiteral'
+
 	public constructor(public token: Token, public value: boolean) {}
 
 	public expressionNode(): string {
@@ -133,7 +165,37 @@ export class BoolLiteral implements Expression {
 	}
 }
 
-export class PrefixExpression implements Expression {
+export class FnLiteral implements IExpression {
+	public type: 'fnLiteral' = 'fnLiteral'
+
+	public constructor(
+		public token: Token,
+		public parameters: Identifier[],
+		public body: BlockStatement
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		let str = this.tokenLiteral()
+		str += '('
+		str += this.parameters.map(s => s.toString()).join(', ')
+		str += ')'
+		str += this.body.toString()
+
+		return str
+	}
+}
+
+export class PrefixExpression implements IExpression {
+	public type: 'prefixExpression' = 'prefixExpression'
+
 	public constructor(
 		public token: Token,
 		public operator: string,
@@ -148,12 +210,14 @@ export class PrefixExpression implements Expression {
 		throw new Error('Not yet implemented')
 	}
 
-	public toString() {
+	public toString(): string {
 		return `(${this.operator}${this.right.toString()})`
 	}
 }
 
-export class InfixExpression implements Expression {
+export class InfixExpression implements IExpression {
+	public type: 'infixExpression' = 'infixExpression'
+
 	public constructor(
 		public token: Token,
 		public left: Expression,
@@ -169,7 +233,7 @@ export class InfixExpression implements Expression {
 		throw new Error('Not yet implemented')
 	}
 
-	public toString() {
+	public toString(): string {
 		const left = this.left.toString()
 		const op = this.operator
 		const right = this.right.toString()
@@ -177,7 +241,9 @@ export class InfixExpression implements Expression {
 	}
 }
 
-export class IfExpression implements Expression {
+export class IfExpression implements IExpression {
+	public type: 'ifExpression' = 'ifExpression'
+
 	public constructor(
 		public token: Token, // 'if' token
 		public condition: Expression,
@@ -205,6 +271,8 @@ export class IfExpression implements Expression {
 }
 
 export class BlockStatement {
+	public type: 'blockStatement' = 'blockStatement'
+
 	public constructor(
 		public token: Token,
 		public statements: Statement[] = []
@@ -218,38 +286,14 @@ export class BlockStatement {
 		throw new Error('Not yet implemented')
 	}
 
-	public toString() {
+	public toString(): string {
 		return this.statements.map(s => s.toString()).join('')
 	}
 }
 
-export class FunctionLiteral implements Expression {
-	public constructor(
-		public token: Token,
-		public parameters: Identifier[],
-		public body: BlockStatement
-	) {}
+export class CallExpression implements IExpression {
+	public type: 'callExpression' = 'callExpression'
 
-	public tokenLiteral() {
-		return this.token.literal
-	}
-
-	public expressionNode(): string {
-		throw new Error('Not yet implemented')
-	}
-
-	public toString() {
-		let str = this.tokenLiteral()
-		str += '('
-		str += this.parameters.map(s => s.toString()).join(', ')
-		str += ')'
-		str += this.body.toString()
-
-		return str
-	}
-}
-
-export class CallExpression implements Expression {
 	public constructor(
 		public token: Token, // '(' token
 		public fn: Expression, // Identifier or FunctionLiteral
@@ -264,7 +308,7 @@ export class CallExpression implements Expression {
 		throw new Error('Not yet implemented')
 	}
 
-	public toString() {
+	public toString(): string {
 		let str = this.fn.toString()
 		str += '('
 		str += this.args.map(s => s.toString()).join(', ')
