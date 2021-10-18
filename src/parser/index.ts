@@ -133,6 +133,8 @@ export class Parser {
 		const token = this.curToken
 		const expression = this.parseExpression(Priority.LOWEST)
 
+		if (!expression) throw new Error()
+
 		if (this.peekTokenIs(TokenType.SEMICOLON)) {
 			this.nextToken()
 		}
