@@ -6,6 +6,8 @@ import {Parser} from '../parser'
 import {Env} from '../value'
 
 export function start() {
+	const env = new Env()
+
 	repl.start({
 		prompt: '>> ',
 		eval(input, context, file, cb) {
@@ -19,8 +21,6 @@ export function start() {
 			if (p.errors.length > 0) {
 				msg = p.errors.join('\n')
 			}
-
-			const env = new Env()
 
 			const evaluated = evaluate(program, env)
 
