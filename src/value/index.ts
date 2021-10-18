@@ -1,7 +1,7 @@
 import * as ast from '../ast'
 import * as value from '../value'
 
-export type Value = Int | Str | Bool | Null | Return | Fn | Error
+export type Value = Int | Str | Bool | Null | Return | Fn | Builtin | Error
 
 export class Int {
 	public constructor(public value: number) {}
@@ -64,6 +64,18 @@ export class Fn {
 		const params = this.parameters.map(p => p.toString()).join(', ')
 		const body = this.body.toString()
 		return `fn (${params}) {\n${body}\n}`
+	}
+}
+
+export type BuiltinFunction = (...args: Value[]) => Value
+
+export class Builtin {
+	public type: 'builtin' = 'builtin'
+
+	public constructor(public fn: BuiltinFunction) {}
+
+	public inspect(): string {
+		return '<built-in function>'
 	}
 }
 

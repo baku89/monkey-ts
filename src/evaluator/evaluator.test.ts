@@ -150,8 +150,7 @@ return 1;
 	function runTest(input: string, expectedMessage: string) {
 		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
 			const val = testEval(input)
-			expect(val).toBeInstanceOf(value.Error)
-			expect((val as value.Error).message).toBe(expectedMessage)
+			testError(val, expectedMessage)
 		})
 	}
 })
@@ -210,6 +209,27 @@ test('string concatenation', () => {
 	expect((evaluated as value.Str).value).toBe('Hello World!')
 })
 
+describe('built-in functions', () => {
+	runTest('len("")', 0)
+	runTest('len("four")', 4)
+	runTest('len("hello world")', 11)
+	runTest('len(1)', 'argument to `len` not supported, got=int')
+	runTest('len("one", "two")', 'wrong number of arguments. expected=1, got=2')
+
+	function runTest(input: string, expected: number | string) {
+		const evaluated = testEval(input)
+		if (typeof expected === 'number') {
+			test(`'${input}' to be ${expected}`, () => {
+				testIntValue(evaluated, expected)
+			})
+		} else if (typeof expected === 'string') {
+			test(`'${input}' should throw an error with message "${expected}"`, () => {
+				testError(evaluated, expected)
+			})
+		}
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
@@ -237,4 +257,9 @@ function testBoolValue(val: value.Value, expected: boolean) {
 
 function testNullValue(val: value.Value) {
 	expect(val).toBe(NULL)
+}
+
+function testError(val: value.Value, expectedMessage: string) {
+	expect(val).toBeInstanceOf(value.Error)
+	expect((val as value.Error).message).toBe(expectedMessage)
 }

@@ -1,5 +1,6 @@
 import * as ast from '../ast'
 import * as value from '../value'
+import {builtins} from './builtins'
 
 export const NULL = new value.Null()
 export const TRUE = new value.Bool(true)
@@ -246,20 +247,29 @@ function evalIfExpression(ie: ast.If, env: value.Env) {
 
 function evalIdentifier(node: ast.Identifier, env: value.Env) {
 	const val = env.get(node.value)
-	if (!val) {
-		return new value.Error(`identifier not found: ${node.value}`)
+	if (val) {
+		return val
 	}
-	return val
+
+	const builtin = builtins.get(node.value)
+	if (builtin) {
+		return builtin
+	}
+
+	return new value.Error(`identifier not found: ${node.value}`)
 }
 
 function applyFunction(fn: value.Value, args: value.Value[]) {
-	if (fn.type !== 'fn') {
-		return new value.Error(`not a function: ${fn.type}`)
+	if (fn.type === 'fn') {
+		const extendedEnv = extendFunctionEnv(fn, args)
+		const evaluated = evaluate(fn.body, extendedEnv)
+		return unwrapReturnValue(evaluated)
+	}
+	if (fn.type === 'builtin') {
+		return fn.fn(...args)
 	}
 
-	const extendedEnv = extendFunctionEnv(fn, args)
-	const evaluated = evaluate(fn.body, extendedEnv)
-	return unwrapReturnValue(evaluated)
+	return new value.Error(`not a function: ${fn.type}`)
 
 	function extendFunctionEnv(fn: value.Fn, args: value.Value[]) {
 		const env = new value.Env(fn.env)
