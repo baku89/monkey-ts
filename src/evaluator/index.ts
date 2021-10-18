@@ -5,12 +5,12 @@ export const NULL = new value.Null()
 export const TRUE = new value.Bool(true)
 export const FALSE = new value.Bool(false)
 
-export function evaluate(node: ast.Node): value.Value {
+export function evaluate(node: ast.Node, env: value.Env): value.Value {
 	if (node instanceof ast.Program) {
-		return evalProgram(node)
+		return evalProgram(node, env)
 	}
 	if (node instanceof ast.ExpressionStatement) {
-		return evaluate(node.expression)
+		return evaluate(node.expression, env)
 	}
 	if (node instanceof ast.IntegerLiteral) {
 		return new value.Integer(node.value)
@@ -19,27 +19,36 @@ export function evaluate(node: ast.Node): value.Value {
 		return nativeBoolToBoolValue(node.value)
 	}
 	if (node instanceof ast.PrefixExpression) {
-		const right = evaluate(node.right)
+		const right = evaluate(node.right, env)
 		if (isError(right)) return right
 		return evalPrefixExpression(node.operator, right)
 	}
 	if (node instanceof ast.InfixExpression) {
-		const left = evaluate(node.left)
+		const left = evaluate(node.left, env)
 		if (isError(left)) return left
-		const right = evaluate(node.right)
+		const right = evaluate(node.right, env)
 		if (isError(right)) return right
 		return evalInfixExpression(node.operator, left, right)
 	}
 	if (node instanceof ast.BlockStatement) {
-		return evalBlockStatement(node)
+		return evalBlockStatement(node, env)
 	}
 	if (node instanceof ast.IfExpression) {
-		return evalIfExpression(node)
+		return evalIfExpression(node, env)
 	}
 	if (node instanceof ast.ReturnStatement) {
-		const val = evaluate(node.returnValue)
+		const val = evaluate(node.returnValue, env)
 		if (isError(val)) return val
 		return new value.Return(val)
+	}
+	if (node instanceof ast.LetStatement) {
+		const val = evaluate(node.value, env)
+		if (isError(val)) return val
+
+		env.set(node.name.value, val)
+	}
+	if (node instanceof ast.Identifier) {
+		return evalIdentifier(node, env)
 	}
 
 	return NULL
@@ -49,11 +58,11 @@ function nativeBoolToBoolValue(value: boolean): value.Bool {
 	return value ? TRUE : FALSE
 }
 
-function evalProgram(program: ast.Program): value.Value {
+function evalProgram(program: ast.Program, env: value.Env): value.Value {
 	let result: value.Value = NULL
 
 	for (const stmt of program.statements) {
-		result = evaluate(stmt)
+		result = evaluate(stmt, env)
 		if (result.type === 'return') {
 			return result.value
 		}
@@ -65,11 +74,14 @@ function evalProgram(program: ast.Program): value.Value {
 	return result
 }
 
-function evalBlockStatement(block: ast.BlockStatement): value.Value {
+function evalBlockStatement(
+	block: ast.BlockStatement,
+	env: value.Env
+): value.Value {
 	let result: value.Value = NULL
 
 	for (const stmt of block.statements) {
-		result = evaluate(stmt)
+		result = evaluate(stmt, env)
 		if (result.type === 'return') {
 			return result
 		}
@@ -173,17 +185,25 @@ function evalIntegerInfixExpression(
 	}
 }
 
-function evalIfExpression(ie: ast.IfExpression) {
-	const condition = evaluate(ie.condition)
+function evalIfExpression(ie: ast.IfExpression, env: value.Env) {
+	const condition = evaluate(ie.condition, env)
 	if (isError(condition)) return condition
 
 	if (isTruthy(condition)) {
-		return evaluate(ie.consequence)
+		return evaluate(ie.consequence, env)
 	} else if (ie.alternative) {
-		return evaluate(ie.alternative)
+		return evaluate(ie.alternative, env)
 	} else {
 		return NULL
 	}
+}
+
+function evalIdentifier(node: ast.Identifier, env: value.Env) {
+	const val = env.get(node.value)
+	if (!val) {
+		return new value.Error(`identifier not found: ${node.value}`)
+	}
+	return val
 }
 
 function isTruthy(val: value.Value) {

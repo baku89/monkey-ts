@@ -3,6 +3,7 @@ import repl from 'repl'
 import {evaluate} from '../evaluator'
 import {Lexer} from '../lexer'
 import {Parser} from '../parser'
+import {Env} from '../value'
 
 export function start() {
 	repl.start({
@@ -19,7 +20,9 @@ export function start() {
 				msg = p.errors.join('\n')
 			}
 
-			const evaluated = evaluate(program)
+			const env = new Env()
+
+			const evaluated = evaluate(program, env)
 
 			const err = msg !== '' ? new Error(msg) : null
 

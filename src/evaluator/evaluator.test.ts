@@ -144,6 +144,7 @@ return 1;
 	`,
 		'unknown operator: bool + bool'
 	)
+	runTest('foobar', 'identifier not found: foobar')
 
 	function runTest(input: string, expectedMessage: string) {
 		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
@@ -154,12 +155,26 @@ return 1;
 	}
 })
 
+describe('let statements', () => {
+	runTest('let a = 5; a;', 5)
+	runTest('let a = 5 * 5; a;', 25)
+	runTest('let a = 5; let b = a; b;', 5)
+	runTest('let a = 5; let b = a; let c = a + b + 5; c;', 15)
+
+	function runTest(input: string, expected: number) {
+		test(`'${input}' to be ${expected}`, () => {
+			testIntegerValue(testEval(input), expected)
+		})
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
 
 	const program = p.parseProgram()
-	return evaluate(program)
+	const env = new value.Env()
+	return evaluate(program, env)
 }
 
 function testIntegerValue(val: value.Value, expected: number) {

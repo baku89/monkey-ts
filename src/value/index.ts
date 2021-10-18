@@ -47,3 +47,16 @@ export class Error {
 		return `ERROR: ${this.message}`
 	}
 }
+
+export class Env {
+	public store = new Map<string, Value>()
+
+	public get(name: string): Value | null {
+		return this.store.get(name) ?? null
+	}
+
+	public set(name: string, val: Value): Value {
+		this.store.set(name, val)
+		return val
+	}
+}
