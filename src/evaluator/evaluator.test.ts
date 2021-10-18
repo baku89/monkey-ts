@@ -6,6 +6,8 @@ import Value, * as value from '../value'
 test('eval integer expression', () => {
 	runTest('5', 5)
 	runTest('10', 10)
+	runTest('-5', -5)
+	runTest('-10', -10)
 
 	function runTest(input: string, expected: number) {
 		const val = testEval(input)
@@ -36,7 +38,6 @@ test('eval bang operator', () => {
 		testBoolValue(val, expected)
 	}
 })
-
 function testEval(input: string): Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

@@ -19,7 +19,7 @@ export function evaluate(node: ast.Node): Value {
 		return evalPrefixExpression(node.operator, right)
 	}
 
-	throw new Error('Not yet implemented')
+	return NULL
 }
 
 function evaluateStatements(stmts: ast.Statement[]): Value {
@@ -32,8 +32,10 @@ function evalPrefixExpression(operator: string, right: Value) {
 	switch (operator) {
 		case '!':
 			return evalBangOperatorExpression(right)
+		case '-':
+			return evalMinusPrefixOperatorExpression(right)
 		default:
-			throw new Error('Not yet implemented')
+			return NULL
 	}
 }
 
@@ -48,4 +50,12 @@ function evalBangOperatorExpression(right: Value): value.Bool {
 		default:
 			return FALSE
 	}
+}
+
+function evalMinusPrefixOperatorExpression(right: Value): Value {
+	if (right.type !== 'integer') {
+		return NULL
+	}
+
+	return new value.Integer(-right.value)
 }
