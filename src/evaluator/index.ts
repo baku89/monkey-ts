@@ -14,6 +14,9 @@ export function evaluate(node: ast.Node): Value {
 		return new value.Integer(node.value)
 	} else if (node instanceof ast.BoolLiteral) {
 		return node.value ? TRUE : FALSE
+	} else if (node instanceof ast.PrefixExpression) {
+		const right = evaluate(node.right)
+		return evalPrefixExpression(node.operator, right)
 	}
 
 	throw new Error('Not yet implemented')
@@ -23,4 +26,26 @@ function evaluateStatements(stmts: ast.Statement[]): Value {
 	const results = stmts.map(evaluate)
 
 	return results[results.length - 1]
+}
+
+function evalPrefixExpression(operator: string, right: Value) {
+	switch (operator) {
+		case '!':
+			return evalBangOperatorExpression(right)
+		default:
+			throw new Error('Not yet implemented')
+	}
+}
+
+function evalBangOperatorExpression(right: Value): value.Bool {
+	switch (right) {
+		case TRUE:
+			return FALSE
+		case FALSE:
+			return TRUE
+		case NULL:
+			return TRUE
+		default:
+			return FALSE
+	}
 }

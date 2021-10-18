@@ -23,6 +23,20 @@ test('eval boolean expression', () => {
 	}
 })
 
+test('eval bang operator', () => {
+	runTest('!true', false)
+	runTest('!false', true)
+	runTest('!5', false)
+	runTest('!!true', true)
+	runTest('!!false', false)
+	runTest('!!5', true)
+
+	function runTest(input: string, expected: boolean) {
+		const val = testEval(input)
+		testBoolValue(val, expected)
+	}
+})
+
 function testEval(input: string): Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
@@ -34,15 +48,15 @@ function testEval(input: string): Value {
 function testIntegerValue(val: Value, expected: number) {
 	expect(val).toBeInstanceOf(value.Integer)
 
-	const int = val as value.Integer
+	const bool = val as value.Integer
 
-	expect(int.value).toBe(expected)
+	expect(bool.value).toBe(expected)
 }
 
 function testBoolValue(val: Value, expected: boolean) {
 	expect(val).toBeInstanceOf(value.Bool)
 
-	const int = val as value.Bool
+	const bool = val as value.Bool
 
-	expect(int.value).toBe(expected)
+	expect(bool.value).toBe(expected)
 }
