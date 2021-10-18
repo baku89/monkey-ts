@@ -82,6 +82,9 @@ export class Lexer {
 			case '}':
 				tok = {type: TokenType.RBRACE, literal: this.ch}
 				break
+			case '"':
+				tok = {type: TokenType.STRING, literal: this.readString()}
+				break
 			case '':
 				tok = {type: TokenType.EOF, literal: this.ch}
 				break
@@ -144,6 +147,15 @@ export class Lexer {
 		const position = this.position
 		while (isDigit(this.ch)) {
 			this.readChar()
+		}
+		return this.input.slice(position, this.position)
+	}
+
+	private readString(): string {
+		const position = this.position + 1
+		while (this.ch !== '') {
+			this.readChar()
+			if (this.ch === '"' || this.ch === '') break
 		}
 		return this.input.slice(position, this.position)
 	}
