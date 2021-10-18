@@ -145,6 +145,7 @@ return 1;
 		'unknown operator: bool + bool'
 	)
 	runTest('foobar', 'identifier not found: foobar')
+	runTest('"Hello" - "World"', 'unknown operator: str - str')
 
 	function runTest(input: string, expectedMessage: string) {
 		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
@@ -197,6 +198,13 @@ describe('function application', () => {
 
 test('string literal', () => {
 	const input = '"Hello World!"'
+	const evaluated = testEval(input)
+	expect(evaluated).toBeInstanceOf(value.Str)
+	expect((evaluated as value.Str).value).toBe('Hello World!')
+})
+
+test('string concatenation', () => {
+	const input = '"Hello" + " " + "World!"'
 	const evaluated = testEval(input)
 	expect(evaluated).toBeInstanceOf(value.Str)
 	expect((evaluated as value.Str).value).toBe('Hello World!')

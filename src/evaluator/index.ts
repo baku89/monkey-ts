@@ -160,6 +160,9 @@ function evalInfixExpression(
 	if (left.type === 'int' && right.type === 'int') {
 		return evalIntInfixExpression(operator, left, right)
 	}
+	if (left.type === 'str' && right.type === 'str') {
+		return evalStrInfixExpression(operator, left, right)
+	}
 
 	switch (operator) {
 		case '==':
@@ -198,6 +201,25 @@ function evalIntInfixExpression(
 			return nativeBoolToBoolValue(left.value < right.value)
 		case '>':
 			return nativeBoolToBoolValue(left.value > right.value)
+		case '==':
+			return nativeBoolToBoolValue(left.value === right.value)
+		case '!=':
+			return nativeBoolToBoolValue(left.value !== right.value)
+		default:
+			return new value.Error(
+				`unknown operator: ${left.type} ${operator} ${right.type}`
+			)
+	}
+}
+
+function evalStrInfixExpression(
+	operator: string,
+	left: value.Str,
+	right: value.Str
+) {
+	switch (operator) {
+		case '+':
+			return new value.Str(left.value + right.value)
 		case '==':
 			return nativeBoolToBoolValue(left.value === right.value)
 		case '!=':
