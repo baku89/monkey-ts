@@ -7,7 +7,7 @@ export const FALSE = new value.Bool(false)
 
 export function evaluate(node: ast.Node): value.Value {
 	if (node instanceof ast.Program) {
-		return evaluateStatements(node.statements)
+		return evalProgram(node)
 	}
 	if (node instanceof ast.ExpressionStatement) {
 		return evaluate(node.expression)
@@ -28,10 +28,14 @@ export function evaluate(node: ast.Node): value.Value {
 		return evalInfixExpression(node.operator, left, right)
 	}
 	if (node instanceof ast.BlockStatement) {
-		return evaluateStatements(node.statements)
+		return evalBlockStatement(node)
 	}
 	if (node instanceof ast.IfExpression) {
 		return evalIfExpression(node)
+	}
+	if (node instanceof ast.ReturnStatement) {
+		const val = evaluate(node.returnValue)
+		return new value.Return(val)
 	}
 
 	return NULL
@@ -41,10 +45,30 @@ function nativeBoolToBoolValue(value: boolean): value.Bool {
 	return value ? TRUE : FALSE
 }
 
-function evaluateStatements(stmts: ast.Statement[]): value.Value {
-	const results = stmts.map(evaluate)
+function evalProgram(program: ast.Program): value.Value {
+	let result: value.Value = NULL
 
-	return results[results.length - 1]
+	for (const stmt of program.statements) {
+		result = evaluate(stmt)
+		if (result.type === 'return') {
+			return result.value
+		}
+	}
+
+	return result
+}
+
+function evalBlockStatement(block: ast.BlockStatement): value.Value {
+	let result: value.Value = NULL
+
+	for (const stmt of block.statements) {
+		result = evaluate(stmt)
+		if (result.type === 'return') {
+			return result
+		}
+	}
+
+	return result
 }
 
 function evalPrefixExpression(

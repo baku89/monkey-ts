@@ -88,6 +88,30 @@ test('eval bang operator', () => {
 		testBoolValue(val, expected)
 	}
 })
+
+test('return statements', () => {
+	runTest('return 10;', 10)
+	runTest('return 10; 9;', 10)
+	runTest('return 2 * 5; 9;', 10)
+	runTest('9; return 2 * 5; 9;', 10)
+	runTest(
+		`
+if (10 > 1) {
+	if (10 > 1) {
+		return 10;
+	}
+
+	return 1;
+}`,
+		10
+	)
+
+	function runTest(input: string, expected: number) {
+		const val = testEval(input)
+		testIntegerValue(val, expected)
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
