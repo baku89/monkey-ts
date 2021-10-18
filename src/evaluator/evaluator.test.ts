@@ -1,4 +1,4 @@
-import {evaluate} from '../evaluator'
+import {evaluate, NULL} from '../evaluator'
 import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 import Value, * as value from '../value'
@@ -51,6 +51,30 @@ test('eval bool expression', () => {
 	}
 })
 
+test('if-else expressions', () => {
+	runTest('if (true) { 10 }', 10)
+	runTest('if (false) { 10 }', null)
+	runTest('if (1) { 10 }', 10)
+	runTest('if (1 < 2) { 10 }', 10)
+	runTest('if (1 > 2) { 10 }', null)
+	runTest('if (1 > 2) { 10 } else { 20 }', 20)
+	runTest('if (1 < 2) { 10 } else { 20 }', 10)
+
+	function runTest(input: string, expected: number | null) {
+		const val = testEval(input)
+		if (val.type === 'integer' && typeof expected === 'number') {
+			testIntegerValue(val, expected)
+			return
+		}
+		if (val.type === 'null' && expected === null) {
+			testNullValue(val)
+			return
+		}
+
+		throw new Error('Invalid test')
+	}
+})
+
 test('eval bang operator', () => {
 	runTest('!true', false)
 	runTest('!false', true)
@@ -86,4 +110,8 @@ function testBoolValue(val: Value, expected: boolean) {
 	const bool = val as value.Bool
 
 	expect(bool.value).toBe(expected)
+}
+
+function testNullValue(val: Value) {
+	expect(val).toBe(NULL)
 }

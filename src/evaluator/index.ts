@@ -1,26 +1,37 @@
 import * as ast from '../ast'
 import Value, * as value from '../value'
 
-const NULL = new value.Null()
-const TRUE = new value.Bool(true)
-const FALSE = new value.Bool(false)
+export const NULL = new value.Null()
+export const TRUE = new value.Bool(true)
+export const FALSE = new value.Bool(false)
 
 export function evaluate(node: ast.Node): Value {
 	if (node instanceof ast.Program) {
 		return evaluateStatements(node.statements)
-	} else if (node instanceof ast.ExpressionStatement) {
+	}
+	if (node instanceof ast.ExpressionStatement) {
 		return evaluate(node.expression)
-	} else if (node instanceof ast.IntegerLiteral) {
+	}
+	if (node instanceof ast.IntegerLiteral) {
 		return new value.Integer(node.value)
-	} else if (node instanceof ast.BoolLiteral) {
+	}
+	if (node instanceof ast.BoolLiteral) {
 		return nativeBoolToBoolValue(node.value)
-	} else if (node instanceof ast.PrefixExpression) {
+	}
+	if (node instanceof ast.PrefixExpression) {
 		const right = evaluate(node.right)
 		return evalPrefixExpression(node.operator, right)
-	} else if (node instanceof ast.InfixExpression) {
+	}
+	if (node instanceof ast.InfixExpression) {
 		const left = evaluate(node.left)
 		const right = evaluate(node.right)
 		return evalInfixExpression(node.operator, left, right)
+	}
+	if (node instanceof ast.BlockStatement) {
+		return evaluateStatements(node.statements)
+	}
+	if (node instanceof ast.IfExpression) {
+		return evalIfExpression(node)
 	}
 
 	return NULL
@@ -107,5 +118,30 @@ function evalIntegerInfixExpression(
 			return nativeBoolToBoolValue(left.value !== right.value)
 		default:
 			return NULL
+	}
+}
+
+function evalIfExpression(ie: ast.IfExpression) {
+	const condition = evaluate(ie.condition)
+
+	if (isTruthy(condition)) {
+		return evaluate(ie.consequence)
+	} else if (ie.alternative) {
+		return evaluate(ie.alternative)
+	} else {
+		return NULL
+	}
+}
+
+function isTruthy(val: Value) {
+	switch (val) {
+		case NULL:
+			return false
+		case TRUE:
+			return true
+		case FALSE:
+			return false
+		default:
+			return true
 	}
 }
