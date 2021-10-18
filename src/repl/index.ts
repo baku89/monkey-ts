@@ -28,5 +28,6 @@ export function start() {
 
 			cb(err, evaluated.inspect())
 		},
+		writer: v => v,
 	})
 }
