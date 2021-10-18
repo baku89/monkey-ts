@@ -1,5 +1,4 @@
-type Value = Integer | Bool | Null
-export default Value
+export type Value = Integer | Bool | Null
 
 export class Integer {
 	public constructor(public value: number) {}

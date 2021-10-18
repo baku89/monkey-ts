@@ -1,11 +1,11 @@
 import * as ast from '../ast'
-import Value, * as value from '../value'
+import * as value from '../value'
 
 export const NULL = new value.Null()
 export const TRUE = new value.Bool(true)
 export const FALSE = new value.Bool(false)
 
-export function evaluate(node: ast.Node): Value {
+export function evaluate(node: ast.Node): value.Value {
 	if (node instanceof ast.Program) {
 		return evaluateStatements(node.statements)
 	}
@@ -41,13 +41,16 @@ function nativeBoolToBoolValue(value: boolean): value.Bool {
 	return value ? TRUE : FALSE
 }
 
-function evaluateStatements(stmts: ast.Statement[]): Value {
+function evaluateStatements(stmts: ast.Statement[]): value.Value {
 	const results = stmts.map(evaluate)
 
 	return results[results.length - 1]
 }
 
-function evalPrefixExpression(operator: string, right: Value) {
+function evalPrefixExpression(
+	operator: string,
+	right: value.Value
+): value.Value {
 	switch (operator) {
 		case '!':
 			return evalBangOperatorExpression(right)
@@ -58,7 +61,7 @@ function evalPrefixExpression(operator: string, right: Value) {
 	}
 }
 
-function evalBangOperatorExpression(right: Value): value.Bool {
+function evalBangOperatorExpression(right: value.Value): value.Bool {
 	switch (right) {
 		case TRUE:
 			return FALSE
@@ -71,7 +74,7 @@ function evalBangOperatorExpression(right: Value): value.Bool {
 	}
 }
 
-function evalMinusPrefixOperatorExpression(right: Value): Value {
+function evalMinusPrefixOperatorExpression(right: value.Value): value.Value {
 	if (right.type !== 'integer') {
 		return NULL
 	}
@@ -79,7 +82,11 @@ function evalMinusPrefixOperatorExpression(right: Value): Value {
 	return new value.Integer(-right.value)
 }
 
-function evalInfixExpression(operator: string, left: Value, right: Value) {
+function evalInfixExpression(
+	operator: string,
+	left: value.Value,
+	right: value.Value
+): value.Value {
 	if (left.type === 'integer' && right.type === 'integer') {
 		return evalIntegerInfixExpression(operator, left, right)
 	}
@@ -98,7 +105,7 @@ function evalIntegerInfixExpression(
 	operator: string,
 	left: value.Integer,
 	right: value.Integer
-) {
+): value.Value {
 	switch (operator) {
 		case '+':
 			return new value.Integer(left.value + right.value)
@@ -133,7 +140,7 @@ function evalIfExpression(ie: ast.IfExpression) {
 	}
 }
 
-function isTruthy(val: Value) {
+function isTruthy(val: value.Value) {
 	switch (val) {
 		case NULL:
 			return false

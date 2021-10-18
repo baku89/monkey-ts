@@ -1,7 +1,7 @@
 import {evaluate, NULL} from '../evaluator'
 import {Lexer} from '../lexer'
 import {Parser} from '../parser'
-import Value, * as value from '../value'
+import * as value from '../value'
 
 test('eval integer expression', () => {
 	runTest('5', 5)
@@ -88,7 +88,7 @@ test('eval bang operator', () => {
 		testBoolValue(val, expected)
 	}
 })
-function testEval(input: string): Value {
+function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
 
@@ -96,7 +96,7 @@ function testEval(input: string): Value {
 	return evaluate(program)
 }
 
-function testIntegerValue(val: Value, expected: number) {
+function testIntegerValue(val: value.Value, expected: number) {
 	expect(val).toBeInstanceOf(value.Integer)
 
 	const bool = val as value.Integer
@@ -104,7 +104,7 @@ function testIntegerValue(val: Value, expected: number) {
 	expect(bool.value).toBe(expected)
 }
 
-function testBoolValue(val: Value, expected: boolean) {
+function testBoolValue(val: value.Value, expected: boolean) {
 	expect(val).toBeInstanceOf(value.Bool)
 
 	const bool = val as value.Bool
@@ -112,6 +112,6 @@ function testBoolValue(val: Value, expected: boolean) {
 	expect(bool.value).toBe(expected)
 }
 
-function testNullValue(val: Value) {
+function testNullValue(val: value.Value) {
 	expect(val).toBe(NULL)
 }
