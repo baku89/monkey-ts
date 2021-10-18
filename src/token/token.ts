@@ -5,7 +5,7 @@ export enum TokenType {
 	// Identifier + Literals
 	IDENT = 'IDENT',
 	INT = 'INT',
-	STRING = 'STRING',
+	STR = 'STR',
 
 	// Oerators
 	ASSIGN = '=',

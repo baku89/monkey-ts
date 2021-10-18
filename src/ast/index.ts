@@ -11,6 +11,7 @@ export type Expression =
 	| If
 	| Call
 	| Int
+	| Str
 	| Bool
 	| Fn
 
@@ -129,6 +130,24 @@ export class Int implements IExpression {
 	public type: 'int' = 'int'
 
 	public constructor(public token: Token, public value: number) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString() {
+		return this.token.literal
+	}
+}
+
+export class Str implements IExpression {
+	public type: 'str' = 'str'
+
+	public constructor(public token: Token, public value: string) {}
 
 	public tokenLiteral() {
 		return this.token.literal

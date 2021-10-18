@@ -46,6 +46,7 @@ export class Parser {
 		this.registerPrefix(TokenType.INT, this.parseInt)
 		this.registerPrefix(TokenType.TRUE, this.parseBool)
 		this.registerPrefix(TokenType.FALSE, this.parseBool)
+		this.registerPrefix(TokenType.STR, this.parseStr)
 		this.registerPrefix(TokenType.BANG, this.parsePrefix)
 		this.registerPrefix(TokenType.MINUS, this.parsePrefix)
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
@@ -183,6 +184,10 @@ export class Parser {
 		}
 
 		return new ast.Int(token, value)
+	}
+
+	private parseStr() {
+		return new ast.Str(this.curToken, this.curToken.literal)
 	}
 
 	private parseBool(): ast.Expression | null {

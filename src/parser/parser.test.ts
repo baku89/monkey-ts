@@ -308,6 +308,16 @@ describe('function parameter parsing', () => {
 	}
 })
 
+test('string literal expression', () => {
+	const input = '"hello world"'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Str)
+	expect((stmt.expression as ast.Str).value).toBe('hello world')
+})
+
 function testParseProgram(input: string) {
 	const l = new Lexer(input)
 	const p = new Parser(l)

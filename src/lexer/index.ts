@@ -83,7 +83,7 @@ export class Lexer {
 				tok = {type: TokenType.RBRACE, literal: this.ch}
 				break
 			case '"':
-				tok = {type: TokenType.STRING, literal: this.readString()}
+				tok = {type: TokenType.STR, literal: this.readString()}
 				break
 			case '':
 				tok = {type: TokenType.EOF, literal: this.ch}

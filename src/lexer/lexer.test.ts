@@ -108,8 +108,8 @@ if (5 < 10) {
 		{expectedType: TokenType.INT, expectedLiteral: '9'},
 		{expectedType: TokenType.SEMICOLON, expectedLiteral: ';'},
 
-		{expectedType: TokenType.STRING, expectedLiteral: 'foobar'},
-		{expectedType: TokenType.STRING, expectedLiteral: 'foo bar'},
+		{expectedType: TokenType.STR, expectedLiteral: 'foobar'},
+		{expectedType: TokenType.STR, expectedLiteral: 'foo bar'},
 
 		{expectedType: TokenType.EOF, expectedLiteral: ''},
 	]
