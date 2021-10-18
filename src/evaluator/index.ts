@@ -1,6 +1,7 @@
 import * as ast from '../ast'
 import Value, * as value from '../value'
 
+const NULL = new value.Null()
 const TRUE = new value.Bool(true)
 const FALSE = new value.Bool(false)
 
