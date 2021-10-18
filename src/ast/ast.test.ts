@@ -1,9 +1,9 @@
 import {TokenType} from '../token'
-import {Identifier, LetStatement, Program} from '.'
+import {Identifier, Let, Program} from '.'
 
 test('Test string', () => {
 	const program = new Program([
-		new LetStatement(
+		new Let(
 			{type: TokenType.LET, literal: 'let'},
 			new Identifier({type: TokenType.IDENT, literal: 'myVar'}, 'myVar'),
 			new Identifier(

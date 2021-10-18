@@ -46,7 +46,7 @@ export class Fn {
 
 	public constructor(
 		public parameters: ast.Identifier[],
-		public body: ast.BlockStatement,
+		public body: ast.Block,
 		public env: value.Env
 	) {}
 

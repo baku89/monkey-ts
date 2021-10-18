@@ -9,16 +9,16 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 	switch (node.type) {
 		case 'program':
 			return evalProgram(node, env)
-		case 'integerLiteral':
+		case 'integer':
 			return new value.Integer(node.value)
-		case 'boolLiteral':
+		case 'bool':
 			return nativeBoolToBoolValue(node.value)
-		case 'prefixExpression': {
+		case 'prefix': {
 			const right = evaluate(node.right, env)
 			if (isError(right)) return right
 			return evalPrefixExpression(node.operator, right)
 		}
-		case 'infixExpression': {
+		case 'infix': {
 			node.left
 			const left = evaluate(node.left, env)
 			if (isError(left)) return left
@@ -26,18 +26,18 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			if (isError(right)) return right
 			return evalInfixExpression(node.operator, left, right)
 		}
-		case 'ifExpression':
+		case 'if':
 			return evalIfExpression(node, env)
 		case 'expressionStatement':
 			return evaluate(node.expression, env)
-		case 'blockStatement':
+		case 'block':
 			return evalBlockStatement(node, env)
-		case 'returnStatement': {
+		case 'return': {
 			const val = evaluate(node.returnValue, env)
 			if (isError(val)) return val
 			return new value.Return(val)
 		}
-		case 'letStatement': {
+		case 'let': {
 			const val = evaluate(node.value, env)
 			if (isError(val)) return val
 			env.set(node.name.value, val)
@@ -45,7 +45,7 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 		}
 		case 'identifier':
 			return evalIdentifier(node, env)
-		case 'fnLiteral':
+		case 'fn':
 			return new value.Fn(node.parameters, node.body, env)
 	}
 
@@ -72,10 +72,7 @@ function evalProgram(program: ast.Program, env: value.Env): value.Value {
 	return result
 }
 
-function evalBlockStatement(
-	block: ast.BlockStatement,
-	env: value.Env
-): value.Value {
+function evalBlockStatement(block: ast.Block, env: value.Env): value.Value {
 	let result: value.Value = NULL
 
 	for (const stmt of block.statements) {
@@ -183,7 +180,7 @@ function evalIntegerInfixExpression(
 	}
 }
 
-function evalIfExpression(ie: ast.IfExpression, env: value.Env) {
+function evalIfExpression(ie: ast.If, env: value.Env) {
 	const condition = evaluate(ie.condition, env)
 	if (isError(condition)) return condition
 

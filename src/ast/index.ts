@@ -2,21 +2,17 @@ import {Token} from '../token'
 
 export type Node = Program | Statement | Expression
 
-type Statement =
-	| LetStatement
-	| ReturnStatement
-	| ExpressionStatement
-	| BlockStatement
+type Statement = Let | Return | ExpressionStatement | Block
 
 export type Expression =
 	| Identifier
-	| PrefixExpression
-	| InfixExpression
-	| IfExpression
-	| CallExpression
-	| IntegerLiteral
-	| BoolLiteral
-	| FnLiteral
+	| Prefix
+	| Infix
+	| If
+	| Call
+	| Integer
+	| Bool
+	| Fn
 
 interface INode {
 	tokenLiteral(): string
@@ -49,8 +45,8 @@ export class Program implements INode {
 	}
 }
 
-export class LetStatement implements IStatement {
-	public type: 'letStatement' = 'letStatement'
+export class Let implements IStatement {
+	public type: 'let' = 'let'
 
 	public constructor(
 		public token: Token,
@@ -71,8 +67,8 @@ export class LetStatement implements IStatement {
 	}
 }
 
-export class ReturnStatement implements IStatement {
-	public type: 'returnStatement' = 'returnStatement'
+export class Return implements IStatement {
+	public type: 'return' = 'return'
 
 	public constructor(public token: Token, public returnValue: Expression) {}
 
@@ -129,8 +125,8 @@ export class Identifier implements IExpression {
 	}
 }
 
-export class IntegerLiteral implements IExpression {
-	public type: 'integerLiteral' = 'integerLiteral'
+export class Integer implements IExpression {
+	public type: 'integer' = 'integer'
 
 	public constructor(public token: Token, public value: number) {}
 
@@ -147,8 +143,8 @@ export class IntegerLiteral implements IExpression {
 	}
 }
 
-export class BoolLiteral implements IExpression {
-	public type: 'boolLiteral' = 'boolLiteral'
+export class Bool implements IExpression {
+	public type: 'bool' = 'bool'
 
 	public constructor(public token: Token, public value: boolean) {}
 
@@ -165,13 +161,13 @@ export class BoolLiteral implements IExpression {
 	}
 }
 
-export class FnLiteral implements IExpression {
-	public type: 'fnLiteral' = 'fnLiteral'
+export class Fn implements IExpression {
+	public type: 'fn' = 'fn'
 
 	public constructor(
 		public token: Token,
 		public parameters: Identifier[],
-		public body: BlockStatement
+		public body: Block
 	) {}
 
 	public tokenLiteral() {
@@ -193,8 +189,8 @@ export class FnLiteral implements IExpression {
 	}
 }
 
-export class PrefixExpression implements IExpression {
-	public type: 'prefixExpression' = 'prefixExpression'
+export class Prefix implements IExpression {
+	public type: 'prefix' = 'prefix'
 
 	public constructor(
 		public token: Token,
@@ -215,8 +211,8 @@ export class PrefixExpression implements IExpression {
 	}
 }
 
-export class InfixExpression implements IExpression {
-	public type: 'infixExpression' = 'infixExpression'
+export class Infix implements IExpression {
+	public type: 'infix' = 'infix'
 
 	public constructor(
 		public token: Token,
@@ -241,14 +237,14 @@ export class InfixExpression implements IExpression {
 	}
 }
 
-export class IfExpression implements IExpression {
-	public type: 'ifExpression' = 'ifExpression'
+export class If implements IExpression {
+	public type: 'if' = 'if'
 
 	public constructor(
 		public token: Token, // 'if' token
 		public condition: Expression,
-		public consequence: BlockStatement,
-		public alternative?: BlockStatement
+		public consequence: Block,
+		public alternative?: Block
 	) {}
 
 	public tokenLiteral() {
@@ -270,8 +266,8 @@ export class IfExpression implements IExpression {
 	}
 }
 
-export class BlockStatement {
-	public type: 'blockStatement' = 'blockStatement'
+export class Block {
+	public type: 'block' = 'block'
 
 	public constructor(
 		public token: Token,
@@ -291,8 +287,8 @@ export class BlockStatement {
 	}
 }
 
-export class CallExpression implements IExpression {
-	public type: 'callExpression' = 'callExpression'
+export class Call implements IExpression {
+	public type: 'call' = 'call'
 
 	public constructor(
 		public token: Token, // '(' token

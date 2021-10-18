@@ -27,9 +27,9 @@ let foobar = 838383;
 function testLetStatement(s: ast.Node, ident: string, value: number) {
 	expect(s.tokenLiteral()).toBe('let')
 
-	expect(s).toBeInstanceOf(ast.LetStatement)
+	expect(s).toBeInstanceOf(ast.Let)
 
-	const ls = s as ast.LetStatement
+	const ls = s as ast.Let
 
 	expect(ls.name.value).toBe(ident)
 
@@ -60,9 +60,9 @@ return 993322;
 
 	tests.forEach((value, i) => {
 		const stmt = program.statements[i]
-		expect(stmt).toBeInstanceOf(ast.ReturnStatement)
+		expect(stmt).toBeInstanceOf(ast.Return)
 		expect(stmt.tokenLiteral()).toBe('return')
-		testLiteralExpression((stmt as ast.ReturnStatement).returnValue, value)
+		testLiteralExpression((stmt as ast.Return).returnValue, value)
 	})
 })
 
@@ -87,9 +87,9 @@ test('integer literal expression', () => {
 
 	const exp = stmt.expression
 
-	expect(exp).toBeInstanceOf(ast.IntegerLiteral)
-	expect((exp as ast.IntegerLiteral).value).toBe(5)
-	expect((exp as ast.IntegerLiteral).tokenLiteral()).toBe('5')
+	expect(exp).toBeInstanceOf(ast.Integer)
+	expect((exp as ast.Integer).value).toBe(5)
+	expect((exp as ast.Integer).tokenLiteral()).toBe('5')
 })
 
 test('parsing prefix expressions', () => {
@@ -108,9 +108,9 @@ test('parsing prefix expressions', () => {
 
 		const exp = stmt.expression
 
-		expect(exp).toBeInstanceOf(ast.PrefixExpression)
+		expect(exp).toBeInstanceOf(ast.Prefix)
 
-		const prefix = exp as ast.PrefixExpression
+		const prefix = exp as ast.Prefix
 
 		expect(prefix.operator).toBe(operator)
 		testLiteralExpression(prefix.right, expected)
@@ -143,9 +143,9 @@ describe('parsing infix expressions', () => {
 
 			const exp = stmt.expression
 
-			expect(exp).toBeInstanceOf(ast.InfixExpression)
+			expect(exp).toBeInstanceOf(ast.Infix)
 
-			const infix = exp as ast.InfixExpression
+			const infix = exp as ast.Infix
 
 			testLiteralExpression(infix.left, leftValue)
 			expect(infix.operator).toBe(operator)
@@ -201,8 +201,8 @@ describe('bool expressions', () => {
 			const program = testParseProgram(input)
 			const stmt = testProgramHasOneExpressionStatement(program)
 
-			expect(stmt.expression).toBeInstanceOf(ast.BoolLiteral)
-			expect((stmt.expression as ast.BoolLiteral).value).toBe(expected)
+			expect(stmt.expression).toBeInstanceOf(ast.Bool)
+			expect((stmt.expression as ast.Bool).value).toBe(expected)
 		})
 	}
 })
@@ -213,9 +213,9 @@ test('if expression', () => {
 	const program = testParseProgram(input)
 	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
+	expect(stmt.expression).toBeInstanceOf(ast.If)
 
-	const exp = stmt.expression as ast.IfExpression
+	const exp = stmt.expression as ast.If
 
 	testInfixExpression(exp.condition, 'x', '<', 'y')
 	expect(exp.consequence.statements).toHaveLength(1)
@@ -234,9 +234,9 @@ test('if else expression', () => {
 	const program = testParseProgram(input)
 	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(stmt.expression).toBeInstanceOf(ast.IfExpression)
+	expect(stmt.expression).toBeInstanceOf(ast.If)
 
-	const exp = stmt.expression as ast.IfExpression
+	const exp = stmt.expression as ast.If
 
 	testInfixExpression(exp.condition, 'x', '<', 'y')
 
@@ -249,9 +249,9 @@ test('if else expression', () => {
 
 	testIdentifier(consequenceStmt.expression as ast.Expression, 'x')
 
-	expect(exp.alternative).toBeInstanceOf(ast.BlockStatement)
+	expect(exp.alternative).toBeInstanceOf(ast.Block)
 
-	const alternative = exp.alternative as ast.BlockStatement
+	const alternative = exp.alternative as ast.Block
 
 	expect(alternative.statements).toHaveLength(1)
 	expect(alternative.statements[0]).toBeInstanceOf(ast.ExpressionStatement)
@@ -267,9 +267,9 @@ test('function literal parsing', () => {
 	const program = testParseProgram(input)
 	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(stmt.expression).toBeInstanceOf(ast.FnLiteral)
+	expect(stmt.expression).toBeInstanceOf(ast.Fn)
 
-	const fn = stmt.expression as ast.FnLiteral
+	const fn = stmt.expression as ast.Fn
 
 	expect(fn.parameters).toHaveLength(2)
 	testLiteralExpression(fn.parameters[0], 'x')
@@ -297,9 +297,9 @@ describe('function parameter parsing', () => {
 			const program = testParseProgram(input)
 			const stmt = testProgramHasOneExpressionStatement(program)
 
-			expect(stmt.expression).toBeInstanceOf(ast.FnLiteral)
+			expect(stmt.expression).toBeInstanceOf(ast.Fn)
 
-			const fn = stmt.expression as ast.FnLiteral
+			const fn = stmt.expression as ast.Fn
 
 			expect(fn.parameters).toHaveLength(expectedParams.length)
 
@@ -347,9 +347,9 @@ function testInfixExpression(
 	operator: string,
 	right: any
 ) {
-	expect(exp).toBeInstanceOf(ast.InfixExpression)
+	expect(exp).toBeInstanceOf(ast.Infix)
 
-	const opExp = exp as ast.InfixExpression
+	const opExp = exp as ast.Infix
 
 	testLiteralExpression(opExp.left, left)
 	expect(opExp.operator).toBe(operator)
@@ -366,18 +366,18 @@ function testIdentifier(exp: ast.Expression, value: string) {
 }
 
 function testIntegerLiteral(il: ast.Expression, value: number) {
-	expect(il).toBeInstanceOf(ast.IntegerLiteral)
+	expect(il).toBeInstanceOf(ast.Integer)
 
-	const integ = il as ast.IntegerLiteral
+	const integ = il as ast.Integer
 
 	expect(integ.value).toBe(value)
 	expect(integ.tokenLiteral()).toBe(value.toString())
 }
 
 function testBoolLiteral(exp: ast.Expression, value: boolean) {
-	expect(exp).toBeInstanceOf(ast.BoolLiteral)
+	expect(exp).toBeInstanceOf(ast.Bool)
 
-	const bool = exp as ast.BoolLiteral
+	const bool = exp as ast.Bool
 
 	expect(bool.value).toBe(value)
 	expect(bool.tokenLiteral()).toBe(value.toString())
@@ -389,9 +389,9 @@ test('call expression parsing', () => {
 	const program = testParseProgram(input)
 	const stmt = testProgramHasOneExpressionStatement(program)
 
-	expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
+	expect(stmt.expression).toBeInstanceOf(ast.Call)
 
-	const exp = stmt.expression as ast.CallExpression
+	const exp = stmt.expression as ast.Call
 
 	testIdentifier(exp.fn, 'add')
 
@@ -417,9 +417,9 @@ describe('call expression parameter parsing', () => {
 			const program = testParseProgram(input)
 			const stmt = testProgramHasOneExpressionStatement(program)
 
-			expect(stmt.expression).toBeInstanceOf(ast.CallExpression)
+			expect(stmt.expression).toBeInstanceOf(ast.Call)
 
-			const exp = stmt.expression as ast.CallExpression
+			const exp = stmt.expression as ast.Call
 
 			testIdentifier(exp.fn, expectedIdent)
 

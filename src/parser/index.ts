@@ -110,7 +110,7 @@ export class Parser {
 			this.nextToken()
 		}
 
-		return new ast.LetStatement(token, name, value)
+		return new ast.Let(token, name, value)
 	}
 
 	private parseReturnStatement() {
@@ -126,7 +126,7 @@ export class Parser {
 			this.nextToken()
 		}
 
-		return new ast.ReturnStatement(token, returnValue)
+		return new ast.Return(token, returnValue)
 	}
 
 	private parseExpressionStatement() {
@@ -182,11 +182,11 @@ export class Parser {
 			return null
 		}
 
-		return new ast.IntegerLiteral(token, value)
+		return new ast.Integer(token, value)
 	}
 
 	private parseBoolLiteral(): ast.Expression | null {
-		return new ast.BoolLiteral(this.curToken, this.curTokenIs(TokenType.TRUE))
+		return new ast.Bool(this.curToken, this.curTokenIs(TokenType.TRUE))
 	}
 
 	private parsePrefixExpression(): ast.Expression | null {
@@ -199,7 +199,7 @@ export class Parser {
 
 		if (!right) throw new Error()
 
-		return new ast.PrefixExpression(token, operator, right)
+		return new ast.Prefix(token, operator, right)
 	}
 
 	private parseGroupedExpression(): ast.Expression | null {
@@ -230,7 +230,7 @@ export class Parser {
 		const consequence = this.parseBlockStatement()
 
 		// Parse else statement
-		let alternative: ast.BlockStatement | undefined = undefined
+		let alternative: ast.Block | undefined = undefined
 		if (this.peekTokenIs(TokenType.ELSE)) {
 			this.nextToken()
 
@@ -239,7 +239,7 @@ export class Parser {
 			alternative = this.parseBlockStatement()
 		}
 
-		return new ast.IfExpression(token, condition, consequence, alternative)
+		return new ast.If(token, condition, consequence, alternative)
 	}
 
 	private parseFunctionLiteral(): ast.Expression | null {
@@ -253,7 +253,7 @@ export class Parser {
 
 		const body = this.parseBlockStatement()
 
-		return new ast.FnLiteral(token, parameters, body)
+		return new ast.Fn(token, parameters, body)
 	}
 
 	private parseFunctionParameters(): ast.Identifier[] {
@@ -284,12 +284,12 @@ export class Parser {
 		return identifiers
 	}
 
-	private parseBlockStatement(): ast.BlockStatement {
+	private parseBlockStatement(): ast.Block {
 		const token = this.curToken
 
 		this.nextToken()
 
-		const block = new ast.BlockStatement(token)
+		const block = new ast.Block(token)
 
 		while (
 			!this.curTokenIs(TokenType.RBRACE) &&
@@ -314,13 +314,13 @@ export class Parser {
 
 		if (!right) throw new Error()
 
-		return new ast.InfixExpression(token, left, operator, right)
+		return new ast.Infix(token, left, operator, right)
 	}
 
 	private parseCallExpression(fn: ast.Expression) {
 		const token = this.curToken
 		const args = this.parseCallArguments()
-		return new ast.CallExpression(token, fn, args)
+		return new ast.Call(token, fn, args)
 	}
 
 	private parseCallArguments(): ast.Expression[] {
