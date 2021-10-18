@@ -1,5 +1,6 @@
 import repl from 'repl'
 
+import {evaluate} from '../evaluator'
 import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 
@@ -12,14 +13,17 @@ export function start() {
 
 			const program = p.parseProgram()
 
-			let err: Error | null = null
+			let msg = ''
 
 			if (p.errors.length > 0) {
-				const msg = p.errors.join('\n')
-				err = new Error(msg)
+				msg = p.errors.join('\n')
 			}
 
-			cb(err, program.toString())
+			const evaluated = evaluate(program)
+
+			const err = msg !== '' ? new Error(msg) : null
+
+			cb(err, evaluated.inspect())
 		},
 	})
 }

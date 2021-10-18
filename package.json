@@ -3,6 +3,7 @@
 	"author": "Baku Hashimoto <mail@baku89.com> (https://baku89.com)",
 	"scripts": {
 		"build": "parcel build src/main.ts --dist-dir dist",
+		"repl": "npm run build; node .",
 		"watch": "parcel watch src/main.ts --dist-dir dist",
 		"test": "jest --slient=false"
 	},
