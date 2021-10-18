@@ -1,7 +1,7 @@
 import * as ast from '../ast'
 import * as value from '../value'
 
-export type Value = Int | Bool | Null | Return | Fn | Error
+export type Value = Int | Str | Bool | Null | Return | Fn | Error
 
 export class Int {
 	public constructor(public value: number) {}
@@ -10,6 +10,16 @@ export class Int {
 
 	public inspect(): string {
 		return this.value.toString()
+	}
+}
+
+export class Str {
+	public constructor(public value: string) {}
+
+	public type: 'str' = 'str'
+
+	public inspect(): string {
+		return this.value
 	}
 }
 

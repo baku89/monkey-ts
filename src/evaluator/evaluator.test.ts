@@ -195,6 +195,13 @@ describe('function application', () => {
 	}
 })
 
+test('string literal', () => {
+	const input = '"Hello World!"'
+	const evaluated = testEval(input)
+	expect(evaluated).toBeInstanceOf(value.Str)
+	expect((evaluated as value.Str).value).toBe('Hello World!')
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

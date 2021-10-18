@@ -11,6 +11,9 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			return evalProgram(node, env)
 		case 'int':
 			return new value.Int(node.value)
+		case 'str':
+			return new value.Str(node.value)
+
 		case 'bool':
 			return nativeBoolToBoolValue(node.value)
 		case 'prefix': {
