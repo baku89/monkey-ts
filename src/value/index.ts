@@ -1,4 +1,7 @@
-export type Value = Integer | Bool | Null | Return | Error
+import * as ast from '../ast'
+import * as value from '../value'
+
+export type Value = Integer | Bool | Null | Return | Fn | Error
 
 export class Integer {
 	public constructor(public value: number) {}
@@ -35,6 +38,22 @@ export class Return {
 
 	public inspect(): string {
 		return this.value.inspect()
+	}
+}
+
+export class Fn {
+	public type: 'fn' = 'fn'
+
+	public constructor(
+		public parameters: ast.Identifier[],
+		public body: ast.BlockStatement,
+		public env: value.Env
+	) {}
+
+	public inspect(): string {
+		const params = this.parameters.map(p => p.toString()).join(', ')
+		const body = this.body.toString()
+		return `fn (${params}) {\n${body}\n}`
 	}
 }
 

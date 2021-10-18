@@ -168,6 +168,20 @@ describe('let statements', () => {
 	}
 })
 
+describe('function value', () => {
+	const input = 'fn(x) { x + 2};'
+
+	const evaluated = testEval(input)
+
+	expect(evaluated).toBeInstanceOf(value.Fn)
+
+	const fn = evaluated as value.Fn
+
+	expect(fn.parameters).toHaveLength(1)
+	expect(fn.parameters[0].value).toBe('x')
+	expect(fn.body.toString()).toBe('(x + 2)')
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

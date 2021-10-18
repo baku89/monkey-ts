@@ -50,6 +50,9 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 	if (node instanceof ast.Identifier) {
 		return evalIdentifier(node, env)
 	}
+	if (node instanceof ast.FunctionLiteral) {
+		return new value.Fn(node.parameters, node.body, env)
+	}
 
 	return NULL
 }
