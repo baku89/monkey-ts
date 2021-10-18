@@ -13,6 +13,16 @@ test('eval integer expression', () => {
 	}
 })
 
+test('eval boolean expression', () => {
+	runTest('true', true)
+	runTest('false', false)
+
+	function runTest(input: string, expected: boolean) {
+		const val = testEval(input)
+		testBoolValue(val, expected)
+	}
+})
+
 function testEval(input: string): Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
@@ -25,6 +35,14 @@ function testIntegerValue(val: Value, expected: number) {
 	expect(val).toBeInstanceOf(value.Integer)
 
 	const int = val as value.Integer
+
+	expect(int.value).toBe(expected)
+}
+
+function testBoolValue(val: Value, expected: boolean) {
+	expect(val).toBeInstanceOf(value.Bool)
+
+	const int = val as value.Bool
 
 	expect(int.value).toBe(expected)
 }

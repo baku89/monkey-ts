@@ -190,16 +190,16 @@ test('operator precedence parsing', () => {
 	}
 })
 
-test('boolean expressions', () => {
-	testBooleanExpression('true;', true)
-	testBooleanExpression('false;', false)
+test('bool expressions', () => {
+	testBoolExpression('true;', true)
+	testBoolExpression('false;', false)
 
-	function testBooleanExpression(input: string, expected: boolean) {
+	function testBoolExpression(input: string, expected: boolean) {
 		const program = testParseProgram(input)
 		const stmt = testProgramHasOneExpressionStatement(program)
 
-		expect(stmt.expression).toBeInstanceOf(ast.BooleanLiteral)
-		expect((stmt.expression as ast.BooleanLiteral).value).toBe(expected)
+		expect(stmt.expression).toBeInstanceOf(ast.BoolLiteral)
+		expect((stmt.expression as ast.BoolLiteral).value).toBe(expected)
 	}
 })
 
@@ -329,7 +329,7 @@ function testLiteralExpression(
 		case 'number':
 			return testIntegerLiteral(exp, expected)
 		case 'boolean':
-			return testBooleanLiteral(exp, expected)
+			return testBoolLiteral(exp, expected)
 		case 'string':
 			return testIdentifier(exp, expected)
 		default:
@@ -370,10 +370,10 @@ function testIntegerLiteral(il: ast.Expression, value: number) {
 	expect(integ.tokenLiteral()).toBe(value.toString())
 }
 
-function testBooleanLiteral(exp: ast.Expression, value: boolean) {
-	expect(exp).toBeInstanceOf(ast.BooleanLiteral)
+function testBoolLiteral(exp: ast.Expression, value: boolean) {
+	expect(exp).toBeInstanceOf(ast.BoolLiteral)
 
-	const bool = exp as ast.BooleanLiteral
+	const bool = exp as ast.BoolLiteral
 
 	expect(bool.value).toBe(value)
 	expect(bool.tokenLiteral()).toBe(value.toString())

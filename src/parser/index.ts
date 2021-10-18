@@ -44,8 +44,8 @@ export class Parser {
 
 		this.registerPrefix(TokenType.IDENT, this.parseIdentifier)
 		this.registerPrefix(TokenType.INT, this.parseIntegerLiteral)
-		this.registerPrefix(TokenType.TRUE, this.parseBooleanLiteral)
-		this.registerPrefix(TokenType.FALSE, this.parseBooleanLiteral)
+		this.registerPrefix(TokenType.TRUE, this.parseBoolLiteral)
+		this.registerPrefix(TokenType.FALSE, this.parseBoolLiteral)
 		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
@@ -185,11 +185,8 @@ export class Parser {
 		return new ast.IntegerLiteral(token, value)
 	}
 
-	private parseBooleanLiteral(): ast.Expression | null {
-		return new ast.BooleanLiteral(
-			this.curToken,
-			this.curTokenIs(TokenType.TRUE)
-		)
+	private parseBoolLiteral(): ast.Expression | null {
+		return new ast.BoolLiteral(this.curToken, this.curTokenIs(TokenType.TRUE))
 	}
 
 	private parsePrefixExpression(): ast.Expression | null {

@@ -117,7 +117,7 @@ export class IntegerLiteral implements Expression {
 	}
 }
 
-export class BooleanLiteral implements Expression {
+export class BoolLiteral implements Expression {
 	public constructor(public token: Token, public value: boolean) {}
 
 	public expressionNode(): string {
