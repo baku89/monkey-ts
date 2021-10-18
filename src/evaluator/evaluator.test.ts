@@ -182,6 +182,19 @@ describe('function value', () => {
 	expect(fn.body.toString()).toBe('(x + 2)')
 })
 
+describe('function application', () => {
+	runTest('let identity = fn(x) { x; }; identity(5);', 5)
+	runTest('let identity = fn(x) { return x; }; identity(5);', 5)
+	runTest('let double = fn(x) { x * 2; }; double(5);', 10)
+	runTest('let add = fn(x, y) { x + y; }; add(5, 5);', 10)
+	runTest('let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));', 20)
+	runTest('fn(x) { x; }(5)', 5)
+
+	function runTest(input: string, expected: number) {
+		testIntValue(testEval(input), expected)
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

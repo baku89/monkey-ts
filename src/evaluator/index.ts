@@ -47,6 +47,15 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			return evalIdentifier(node, env)
 		case 'fn':
 			return new value.Fn(node.parameters, node.body, env)
+		case 'call': {
+			const fn = evaluate(node.fn, env)
+			if (isError(fn)) return fn
+			const args = evalExpressions(node.args, env)
+			if (args.length === 1 && isError(args[0])) {
+				return args[0]
+			}
+			return applyFunction(fn, args)
+		}
 	}
 
 	return NULL
@@ -83,6 +92,23 @@ function evalBlockStatement(block: ast.Block, env: value.Env): value.Value {
 		if (result.type === 'error') {
 			return result
 		}
+	}
+
+	return result
+}
+
+function evalExpressions(
+	exps: ast.Expression[],
+	env: value.Env
+): value.Value[] {
+	const result: value.Value[] = []
+
+	for (const e of exps) {
+		const evaluated = evaluate(e, env)
+		if (isError(evaluated)) {
+			return [evaluated]
+		}
+		result.push(evaluated)
 	}
 
 	return result
@@ -199,6 +225,31 @@ function evalIdentifier(node: ast.Identifier, env: value.Env) {
 		return new value.Error(`identifier not found: ${node.value}`)
 	}
 	return val
+}
+
+function applyFunction(fn: value.Value, args: value.Value[]) {
+	if (fn.type !== 'fn') {
+		return new value.Error(`not a function: ${fn.type}`)
+	}
+
+	const extendedEnv = extendFunctionEnv(fn, args)
+	const evaluated = evaluate(fn.body, extendedEnv)
+	return unwrapReturnValue(evaluated)
+
+	function extendFunctionEnv(fn: value.Fn, args: value.Value[]) {
+		const env = new value.Env(fn.env)
+
+		fn.parameters.forEach((param, i) => {
+			env.set(param.value, args[i])
+		})
+
+		return env
+	}
+
+	function unwrapReturnValue(val: value.Value) {
+		if (val.type === 'return') return val.value
+		return val
+	}
 }
 
 function isTruthy(val: value.Value) {

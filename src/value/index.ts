@@ -70,8 +70,12 @@ export class Error {
 export class Env {
 	public store = new Map<string, Value>()
 
+	public constructor(public outer: Env | null = null) {}
+
 	public get(name: string): Value | null {
-		return this.store.get(name) ?? null
+		const val = this.store.get(name) ?? null
+		if (!val && this.outer) return this.outer.get(name)
+		return val
 	}
 
 	public set(name: string, val: Value): Value {
