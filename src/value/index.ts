@@ -1,12 +1,12 @@
 import * as ast from '../ast'
 import * as value from '../value'
 
-export type Value = Integer | Bool | Null | Return | Fn | Error
+export type Value = Int | Bool | Null | Return | Fn | Error
 
-export class Integer {
+export class Int {
 	public constructor(public value: number) {}
 
-	public type: 'integer' = 'integer'
+	public type: 'int' = 'int'
 
 	public inspect(): string {
 		return this.value.toString()

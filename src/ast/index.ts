@@ -10,7 +10,7 @@ export type Expression =
 	| Infix
 	| If
 	| Call
-	| Integer
+	| Int
 	| Bool
 	| Fn
 
@@ -125,8 +125,8 @@ export class Identifier implements IExpression {
 	}
 }
 
-export class Integer implements IExpression {
-	public type: 'integer' = 'integer'
+export class Int implements IExpression {
+	public type: 'int' = 'int'
 
 	public constructor(public token: Token, public value: number) {}
 

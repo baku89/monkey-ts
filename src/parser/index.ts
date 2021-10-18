@@ -43,23 +43,23 @@ export class Parser {
 		this.nextToken()
 
 		this.registerPrefix(TokenType.IDENT, this.parseIdentifier)
-		this.registerPrefix(TokenType.INT, this.parseIntegerLiteral)
-		this.registerPrefix(TokenType.TRUE, this.parseBoolLiteral)
-		this.registerPrefix(TokenType.FALSE, this.parseBoolLiteral)
-		this.registerPrefix(TokenType.BANG, this.parsePrefixExpression)
-		this.registerPrefix(TokenType.MINUS, this.parsePrefixExpression)
+		this.registerPrefix(TokenType.INT, this.parseInt)
+		this.registerPrefix(TokenType.TRUE, this.parseBool)
+		this.registerPrefix(TokenType.FALSE, this.parseBool)
+		this.registerPrefix(TokenType.BANG, this.parsePrefix)
+		this.registerPrefix(TokenType.MINUS, this.parsePrefix)
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
-		this.registerPrefix(TokenType.IF, this.parseIfExpression)
+		this.registerPrefix(TokenType.IF, this.parseIf)
 		this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral)
 
-		this.registerInfix(TokenType.PLUS, this.parseInfixExpression)
-		this.registerInfix(TokenType.MINUS, this.parseInfixExpression)
-		this.registerInfix(TokenType.SLASH, this.parseInfixExpression)
-		this.registerInfix(TokenType.ASTERISK, this.parseInfixExpression)
-		this.registerInfix(TokenType.EQ, this.parseInfixExpression)
-		this.registerInfix(TokenType.NOT_EQ, this.parseInfixExpression)
-		this.registerInfix(TokenType.LT, this.parseInfixExpression)
-		this.registerInfix(TokenType.GT, this.parseInfixExpression)
+		this.registerInfix(TokenType.PLUS, this.parseInfix)
+		this.registerInfix(TokenType.MINUS, this.parseInfix)
+		this.registerInfix(TokenType.SLASH, this.parseInfix)
+		this.registerInfix(TokenType.ASTERISK, this.parseInfix)
+		this.registerInfix(TokenType.EQ, this.parseInfix)
+		this.registerInfix(TokenType.NOT_EQ, this.parseInfix)
+		this.registerInfix(TokenType.LT, this.parseInfix)
+		this.registerInfix(TokenType.GT, this.parseInfix)
 		this.registerInfix(TokenType.LPAREN, this.parseCallExpression)
 	}
 
@@ -79,7 +79,7 @@ export class Parser {
 	private parseStatement() {
 		switch (this.curToken.type) {
 			case TokenType.LET:
-				return this.parseLetStatement()
+				return this.parseLet()
 			case TokenType.RETURN:
 				return this.parseReturnStatement()
 			default:
@@ -87,7 +87,7 @@ export class Parser {
 		}
 	}
 
-	private parseLetStatement() {
+	private parseLet() {
 		const token = this.curToken
 
 		if (!this.expectPeek(TokenType.IDENT)) {
@@ -171,25 +171,25 @@ export class Parser {
 		return new ast.Identifier(this.curToken, this.curToken.literal)
 	}
 
-	private parseIntegerLiteral() {
+	private parseInt() {
 		const token = this.curToken
 
 		const value = parseInt(token.literal)
 
 		if (isNaN(value)) {
-			const msg = `Could not parse ${token.literal} as integer`
+			const msg = `Could not parse ${token.literal} as int`
 			this.errors.push(msg)
 			return null
 		}
 
-		return new ast.Integer(token, value)
+		return new ast.Int(token, value)
 	}
 
-	private parseBoolLiteral(): ast.Expression | null {
+	private parseBool(): ast.Expression | null {
 		return new ast.Bool(this.curToken, this.curTokenIs(TokenType.TRUE))
 	}
 
-	private parsePrefixExpression(): ast.Expression | null {
+	private parsePrefix(): ast.Expression | null {
 		const token = this.curToken
 		const operator = token.literal
 
@@ -212,7 +212,7 @@ export class Parser {
 		return exp
 	}
 
-	private parseIfExpression(): ast.Expression | null {
+	private parseIf(): ast.Expression | null {
 		const token = this.curToken
 
 		if (!this.expectPeek(TokenType.LPAREN)) return null
@@ -304,7 +304,7 @@ export class Parser {
 		return block
 	}
 
-	private parseInfixExpression(left: ast.Expression) {
+	private parseInfix(left: ast.Expression) {
 		const token = this.curToken
 		const operator = token.literal
 

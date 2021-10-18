@@ -9,8 +9,8 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 	switch (node.type) {
 		case 'program':
 			return evalProgram(node, env)
-		case 'integer':
-			return new value.Integer(node.value)
+		case 'int':
+			return new value.Int(node.value)
 		case 'bool':
 			return nativeBoolToBoolValue(node.value)
 		case 'prefix': {
@@ -116,11 +116,11 @@ function evalBangOperatorExpression(right: value.Value): value.Bool {
 }
 
 function evalMinusPrefixOperatorExpression(right: value.Value): value.Value {
-	if (right.type !== 'integer') {
+	if (right.type !== 'int') {
 		return new value.Error(`unknown operator: -${right.type}`)
 	}
 
-	return new value.Integer(-right.value)
+	return new value.Int(-right.value)
 }
 
 function evalInfixExpression(
@@ -128,8 +128,8 @@ function evalInfixExpression(
 	left: value.Value,
 	right: value.Value
 ): value.Value {
-	if (left.type === 'integer' && right.type === 'integer') {
-		return evalIntegerInfixExpression(operator, left, right)
+	if (left.type === 'int' && right.type === 'int') {
+		return evalIntInfixExpression(operator, left, right)
 	}
 
 	switch (operator) {
@@ -151,20 +151,20 @@ function evalInfixExpression(
 	)
 }
 
-function evalIntegerInfixExpression(
+function evalIntInfixExpression(
 	operator: string,
-	left: value.Integer,
-	right: value.Integer
+	left: value.Int,
+	right: value.Int
 ): value.Value {
 	switch (operator) {
 		case '+':
-			return new value.Integer(left.value + right.value)
+			return new value.Int(left.value + right.value)
 		case '-':
-			return new value.Integer(left.value - right.value)
+			return new value.Int(left.value - right.value)
 		case '*':
-			return new value.Integer(left.value * right.value)
+			return new value.Int(left.value * right.value)
 		case '/':
-			return new value.Integer(left.value / right.value)
+			return new value.Int(left.value / right.value)
 		case '<':
 			return nativeBoolToBoolValue(left.value < right.value)
 		case '>':

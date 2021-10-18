@@ -3,7 +3,7 @@ import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 import * as value from '../value'
 
-describe('eval integer expression', () => {
+describe('eval int expression', () => {
 	runTest('5', 5)
 	runTest('10', 10)
 	runTest('-5', -5)
@@ -21,7 +21,7 @@ describe('eval integer expression', () => {
 	function runTest(input: string, expected: number) {
 		test(`'${input}' to be ${expected}`, () => {
 			const val = testEval(input)
-			testIntegerValue(val, expected)
+			testIntValue(val, expected)
 		})
 	}
 })
@@ -67,8 +67,8 @@ describe('if-else expressions', () => {
 	function runTest(input: string, expected: number | null) {
 		test(`'${input}'' to be ${expected}`, () => {
 			const val = testEval(input)
-			if (val.type === 'integer' && typeof expected === 'number') {
-				testIntegerValue(val, expected)
+			if (val.type === 'int' && typeof expected === 'number') {
+				testIntValue(val, expected)
 				return
 			}
 			if (val.type === 'null' && expected === null) {
@@ -117,14 +117,14 @@ if (10 > 1) {
 	function runTest(input: string, expected: number) {
 		test(`'${input}' to be ${expected}`, () => {
 			const val = testEval(input)
-			testIntegerValue(val, expected)
+			testIntValue(val, expected)
 		})
 	}
 })
 
 describe('error handling', () => {
-	runTest('5 + true;', 'type mismatch: integer + bool')
-	runTest('5 + true; 5', 'type mismatch: integer + bool')
+	runTest('5 + true;', 'type mismatch: int + bool')
+	runTest('5 + true; 5', 'type mismatch: int + bool')
 	runTest('-true', 'unknown operator: -bool')
 	runTest('true + false;', 'unknown operator: bool + bool')
 	runTest('5; true + false; 5;', 'unknown operator: bool + bool')
@@ -163,7 +163,7 @@ describe('let statements', () => {
 
 	function runTest(input: string, expected: number) {
 		test(`'${input}' to be ${expected}`, () => {
-			testIntegerValue(testEval(input), expected)
+			testIntValue(testEval(input), expected)
 		})
 	}
 })
@@ -191,10 +191,10 @@ function testEval(input: string): value.Value {
 	return evaluate(program, env)
 }
 
-function testIntegerValue(val: value.Value, expected: number) {
-	expect(val).toBeInstanceOf(value.Integer)
+function testIntValue(val: value.Value, expected: number) {
+	expect(val).toBeInstanceOf(value.Int)
 
-	const bool = val as value.Integer
+	const bool = val as value.Int
 
 	expect(bool.value).toBe(expected)
 }

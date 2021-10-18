@@ -35,7 +35,7 @@ function testLetStatement(s: ast.Node, ident: string, value: number) {
 
 	expect(ls.name.tokenLiteral()).toBe(ident)
 
-	testLiteralExpression(ls.value as any, value)
+	testLiteral(ls.value as any, value)
 }
 
 function checkParserErrors(p: Parser) {
@@ -62,7 +62,7 @@ return 993322;
 		const stmt = program.statements[i]
 		expect(stmt).toBeInstanceOf(ast.Return)
 		expect(stmt.tokenLiteral()).toBe('return')
-		testLiteralExpression((stmt as ast.Return).returnValue, value)
+		testLiteral((stmt as ast.Return).returnValue, value)
 	})
 })
 
@@ -79,7 +79,7 @@ test('identifier expression', () => {
 	expect((expr as ast.Identifier).tokenLiteral()).toBe('foobar')
 })
 
-test('integer literal expression', () => {
+test('int literal expression', () => {
 	const input = '5;'
 
 	const program = testParseProgram(input)
@@ -87,9 +87,9 @@ test('integer literal expression', () => {
 
 	const exp = stmt.expression
 
-	expect(exp).toBeInstanceOf(ast.Integer)
-	expect((exp as ast.Integer).value).toBe(5)
-	expect((exp as ast.Integer).tokenLiteral()).toBe('5')
+	expect(exp).toBeInstanceOf(ast.Int)
+	expect((exp as ast.Int).value).toBe(5)
+	expect((exp as ast.Int).tokenLiteral()).toBe('5')
 })
 
 test('parsing prefix expressions', () => {
@@ -113,7 +113,7 @@ test('parsing prefix expressions', () => {
 		const prefix = exp as ast.Prefix
 
 		expect(prefix.operator).toBe(operator)
-		testLiteralExpression(prefix.right, expected)
+		testLiteral(prefix.right, expected)
 	}
 })
 
@@ -147,9 +147,9 @@ describe('parsing infix expressions', () => {
 
 			const infix = exp as ast.Infix
 
-			testLiteralExpression(infix.left, leftValue)
+			testLiteral(infix.left, leftValue)
 			expect(infix.operator).toBe(operator)
-			testLiteralExpression(infix.right, rightValue)
+			testLiteral(infix.right, rightValue)
 		})
 	}
 })
@@ -272,8 +272,8 @@ test('function literal parsing', () => {
 	const fn = stmt.expression as ast.Fn
 
 	expect(fn.parameters).toHaveLength(2)
-	testLiteralExpression(fn.parameters[0], 'x')
-	testLiteralExpression(fn.parameters[1], 'y')
+	testLiteral(fn.parameters[0], 'x')
+	testLiteral(fn.parameters[1], 'y')
 
 	expect(fn.body.statements).toHaveLength(1)
 
@@ -325,15 +325,12 @@ function testProgramHasOneExpressionStatement(program: ast.Program) {
 	return program.statements[0] as ast.ExpressionStatement
 }
 
-function testLiteralExpression(
-	exp: ast.Expression,
-	expected: number | boolean | string
-) {
+function testLiteral(exp: ast.Expression, expected: number | boolean | string) {
 	switch (typeof expected) {
 		case 'number':
-			return testIntegerLiteral(exp, expected)
+			return testInt(exp, expected)
 		case 'boolean':
-			return testBoolLiteral(exp, expected)
+			return testBool(exp, expected)
 		case 'string':
 			return testIdentifier(exp, expected)
 		default:
@@ -351,9 +348,9 @@ function testInfixExpression(
 
 	const opExp = exp as ast.Infix
 
-	testLiteralExpression(opExp.left, left)
+	testLiteral(opExp.left, left)
 	expect(opExp.operator).toBe(operator)
-	testLiteralExpression(opExp.right, right)
+	testLiteral(opExp.right, right)
 }
 
 function testIdentifier(exp: ast.Expression, value: string) {
@@ -365,16 +362,16 @@ function testIdentifier(exp: ast.Expression, value: string) {
 	expect(ident.tokenLiteral()).toBe(value)
 }
 
-function testIntegerLiteral(il: ast.Expression, value: number) {
-	expect(il).toBeInstanceOf(ast.Integer)
+function testInt(il: ast.Expression, value: number) {
+	expect(il).toBeInstanceOf(ast.Int)
 
-	const integ = il as ast.Integer
+	const integ = il as ast.Int
 
 	expect(integ.value).toBe(value)
 	expect(integ.tokenLiteral()).toBe(value.toString())
 }
 
-function testBoolLiteral(exp: ast.Expression, value: boolean) {
+function testBool(exp: ast.Expression, value: boolean) {
 	expect(exp).toBeInstanceOf(ast.Bool)
 
 	const bool = exp as ast.Bool
@@ -397,7 +394,7 @@ test('call expression parsing', () => {
 
 	expect(exp.args).toHaveLength(3)
 
-	testLiteralExpression(exp.args[0], 1)
+	testLiteral(exp.args[0], 1)
 	testInfixExpression(exp.args[1], 2, '*', 3)
 	testInfixExpression(exp.args[2], 4, '+', 5)
 })
