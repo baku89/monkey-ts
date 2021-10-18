@@ -112,6 +112,38 @@ if (10 > 1) {
 	}
 })
 
+describe('error handling', () => {
+	runTest('5 + true;', 'type mismatch: integer + bool')
+	runTest('5 + true; 5', 'type mismatch: integer + bool')
+	runTest('-true', 'unknown operator: -bool')
+	runTest('true + false;', 'unknown operator: bool + bool')
+	runTest('5; true + false; 5;', 'unknown operator: bool + bool')
+	runTest(
+		'if (10 > 5) { return true + false; }',
+		'unknown operator: bool + bool'
+	)
+	runTest(
+		`
+if (10 > 1) {
+	if (10 > 1) {
+		return true + false;
+	}
+}
+
+return 1;
+	`,
+		'unknown operator: bool + bool'
+	)
+
+	function runTest(input: string, expectedMessage: string) {
+		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
+			const val = testEval(input)
+			expect(val).toBeInstanceOf(value.Error)
+			expect((val as value.Error).message).toBe(expectedMessage)
+		})
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

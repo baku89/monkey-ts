@@ -20,11 +20,14 @@ export function evaluate(node: ast.Node): value.Value {
 	}
 	if (node instanceof ast.PrefixExpression) {
 		const right = evaluate(node.right)
+		if (isError(right)) return right
 		return evalPrefixExpression(node.operator, right)
 	}
 	if (node instanceof ast.InfixExpression) {
 		const left = evaluate(node.left)
+		if (isError(left)) return left
 		const right = evaluate(node.right)
+		if (isError(right)) return right
 		return evalInfixExpression(node.operator, left, right)
 	}
 	if (node instanceof ast.BlockStatement) {
@@ -35,6 +38,7 @@ export function evaluate(node: ast.Node): value.Value {
 	}
 	if (node instanceof ast.ReturnStatement) {
 		const val = evaluate(node.returnValue)
+		if (isError(val)) return val
 		return new value.Return(val)
 	}
 
@@ -53,6 +57,9 @@ function evalProgram(program: ast.Program): value.Value {
 		if (result.type === 'return') {
 			return result.value
 		}
+		if (result.type === 'error') {
+			return result
+		}
 	}
 
 	return result
@@ -64,6 +71,9 @@ function evalBlockStatement(block: ast.BlockStatement): value.Value {
 	for (const stmt of block.statements) {
 		result = evaluate(stmt)
 		if (result.type === 'return') {
+			return result
+		}
+		if (result.type === 'error') {
 			return result
 		}
 	}
@@ -81,7 +91,7 @@ function evalPrefixExpression(
 		case '-':
 			return evalMinusPrefixOperatorExpression(right)
 		default:
-			return NULL
+			return new value.Error(`unknown operator: ${operator}${right.type}`)
 	}
 }
 
@@ -100,7 +110,7 @@ function evalBangOperatorExpression(right: value.Value): value.Bool {
 
 function evalMinusPrefixOperatorExpression(right: value.Value): value.Value {
 	if (right.type !== 'integer') {
-		return NULL
+		return new value.Error(`unknown operator: -${right.type}`)
 	}
 
 	return new value.Integer(-right.value)
@@ -122,7 +132,16 @@ function evalInfixExpression(
 			return nativeBoolToBoolValue(left !== right)
 	}
 
-	return NULL
+	// Error handlings
+	if (left.type !== right.type) {
+		return new value.Error(
+			`type mismatch: ${left.type} ${operator} ${right.type}`
+		)
+	}
+
+	return new value.Error(
+		`unknown operator: ${left.type} ${operator} ${right.type}`
+	)
 }
 
 function evalIntegerInfixExpression(
@@ -148,12 +167,15 @@ function evalIntegerInfixExpression(
 		case '!=':
 			return nativeBoolToBoolValue(left.value !== right.value)
 		default:
-			return NULL
+			return new value.Error(
+				`unknown operator: ${left.type} ${operator} ${right.type}`
+			)
 	}
 }
 
 function evalIfExpression(ie: ast.IfExpression) {
 	const condition = evaluate(ie.condition)
+	if (isError(condition)) return condition
 
 	if (isTruthy(condition)) {
 		return evaluate(ie.consequence)
@@ -175,4 +197,8 @@ function isTruthy(val: value.Value) {
 		default:
 			return true
 	}
+}
+
+function isError(val: value.Value): val is value.Error {
+	return val.type === 'error'
 }

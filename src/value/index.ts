@@ -1,4 +1,4 @@
-export type Value = Integer | Bool | Null | Return
+export type Value = Integer | Bool | Null | Return | Error
 
 export class Integer {
 	public constructor(public value: number) {}
@@ -35,5 +35,15 @@ export class Return {
 
 	public inspect(): string {
 		return this.value.inspect()
+	}
+}
+
+export class Error {
+	public type: 'error' = 'error'
+
+	public constructor(public message: string) {}
+
+	public inspect(): string {
+		return `ERROR: ${this.message}`
 	}
 }
