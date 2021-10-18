@@ -438,3 +438,18 @@ describe('call expression parameter parsing', () => {
 		})
 	}
 })
+
+test('parsing array literals', () => {
+	const input = '[1, 2 * 2, 3 + 3]'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Vector)
+
+	const vec = stmt.expression as ast.Vector
+	expect(vec.elements).toHaveLength(3)
+	testInt(vec.elements[0], 1)
+	testInfixExpression(vec.elements[1], 2, '*', 2)
+	testInfixExpression(vec.elements[2], 3, '+', 3)
+})

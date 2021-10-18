@@ -52,6 +52,7 @@ export class Parser {
 		this.registerPrefix(TokenType.LPAREN, this.parseGroupedExpression)
 		this.registerPrefix(TokenType.IF, this.parseIf)
 		this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral)
+		this.registerPrefix(TokenType.LBRACKET, this.parseVector)
 
 		this.registerInfix(TokenType.PLUS, this.parseInfix)
 		this.registerInfix(TokenType.MINUS, this.parseInfix)
@@ -261,6 +262,12 @@ export class Parser {
 		return new ast.Fn(token, parameters, body)
 	}
 
+	private parseVector(): ast.Expression {
+		const token = this.curToken
+		const elements = this.parseExpressionList(TokenType.RBRACKET)
+		return new ast.Vector(token, elements)
+	}
+
 	private parseFunctionParameters(): ast.Identifier[] {
 		const identifiers: ast.Identifier[] = []
 
@@ -287,6 +294,36 @@ export class Parser {
 		}
 
 		return identifiers
+	}
+
+	private parseExpressionList(end: TokenType): ast.Expression[] {
+		const list: ast.Expression[] = []
+
+		if (this.peekTokenIs(end)) {
+			this.nextToken()
+			return list
+		}
+
+		this.nextToken()
+
+		const el = this.parseExpression(Priority.LOWEST)
+		if (!el) throw new Error('Cannot parse an element of expression list')
+		list.push(el)
+
+		while (this.peekTokenIs(TokenType.COMMA)) {
+			this.nextToken()
+			this.nextToken()
+
+			const el = this.parseExpression(Priority.LOWEST)
+			if (!el) throw new Error('Cannot parse an element of expression list')
+			list.push(el)
+		}
+
+		if (!this.expectPeek(end)) {
+			throw new Error('Canot parse expression list')
+		}
+
+		return list
 	}
 
 	private parseBlockStatement(): ast.Block {
