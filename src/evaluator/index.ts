@@ -9,7 +9,7 @@ export const FALSE = new value.Bool(false)
 export function evaluate(node: ast.Node, env: value.Env): value.Value {
 	switch (node.type) {
 		case 'program':
-			return evalProgram(node, env)
+			return evaluateProgram(node, env)
 		case 'int':
 			return new value.Int(node.value)
 		case 'str':
@@ -20,7 +20,7 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 		case 'prefix': {
 			const right = evaluate(node.right, env)
 			if (isError(right)) return right
-			return evalPrefixExpression(node.operator, right)
+			return evaluatePrefixExpression(node.operator, right)
 		}
 		case 'infix': {
 			node.left
@@ -28,14 +28,14 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			if (isError(left)) return left
 			const right = evaluate(node.right, env)
 			if (isError(right)) return right
-			return evalInfixExpression(node.operator, left, right)
+			return evaluateInfixExpression(node.operator, left, right)
 		}
 		case 'if':
-			return evalIfExpression(node, env)
+			return evaluateIfExpression(node, env)
 		case 'expressionStatement':
 			return evaluate(node.expression, env)
 		case 'block':
-			return evalBlockStatement(node, env)
+			return evaluateBlockStatement(node, env)
 		case 'return': {
 			const val = evaluate(node.returnValue, env)
 			if (isError(val)) return val
@@ -52,7 +52,7 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 		case 'fn':
 			return new value.Fn(node.parameters, node.body, env)
 		case 'vector': {
-			const elements = evalExpressions(node.elements, env)
+			const elements = evaluateExpressions(node.elements, env)
 			if (elements.length === 1 && isError(elements[0])) {
 				return elements[0]
 			}
@@ -63,12 +63,12 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			if (isError(left)) return left
 			const index = evaluate(node.index, env)
 			if (isError(index)) return index
-			return evalIndexExpression(left, index)
+			return evaluateIndexExpression(left, index)
 		}
 		case 'call': {
 			const fn = evaluate(node.fn, env)
 			if (isError(fn)) return fn
-			const args = evalExpressions(node.args, env)
+			const args = evaluateExpressions(node.args, env)
 			if (args.length === 1 && isError(args[0])) {
 				return args[0]
 			}
@@ -83,7 +83,7 @@ function nativeBoolToBoolValue(value: boolean): value.Bool {
 	return value ? TRUE : FALSE
 }
 
-function evalProgram(program: ast.Program, env: value.Env): value.Value {
+function evaluateProgram(program: ast.Program, env: value.Env): value.Value {
 	let result: value.Value = NULL
 
 	for (const stmt of program.statements) {
@@ -99,7 +99,7 @@ function evalProgram(program: ast.Program, env: value.Env): value.Value {
 	return result
 }
 
-function evalBlockStatement(block: ast.Block, env: value.Env): value.Value {
+function evaluateBlockStatement(block: ast.Block, env: value.Env): value.Value {
 	let result: value.Value = NULL
 
 	for (const stmt of block.statements) {
@@ -115,7 +115,7 @@ function evalBlockStatement(block: ast.Block, env: value.Env): value.Value {
 	return result
 }
 
-function evalExpressions(
+function evaluateExpressions(
 	exps: ast.Expression[],
 	env: value.Env
 ): value.Value[] {
@@ -132,21 +132,21 @@ function evalExpressions(
 	return result
 }
 
-function evalPrefixExpression(
+function evaluatePrefixExpression(
 	operator: string,
 	right: value.Value
 ): value.Value {
 	switch (operator) {
 		case '!':
-			return evalBangOperatorExpression(right)
+			return evaluateBangOperatorExpression(right)
 		case '-':
-			return evalMinusPrefixOperatorExpression(right)
+			return evaluateMinusPrefixOperatorExpression(right)
 		default:
 			return new value.Error(`unknown operator: ${operator}${right.type}`)
 	}
 }
 
-function evalBangOperatorExpression(right: value.Value): value.Bool {
+function evaluateBangOperatorExpression(right: value.Value): value.Bool {
 	switch (right) {
 		case TRUE:
 			return FALSE
@@ -159,7 +159,9 @@ function evalBangOperatorExpression(right: value.Value): value.Bool {
 	}
 }
 
-function evalMinusPrefixOperatorExpression(right: value.Value): value.Value {
+function evaluateMinusPrefixOperatorExpression(
+	right: value.Value
+): value.Value {
 	if (right.type !== 'int') {
 		return new value.Error(`unknown operator: -${right.type}`)
 	}
@@ -167,16 +169,16 @@ function evalMinusPrefixOperatorExpression(right: value.Value): value.Value {
 	return new value.Int(-right.value)
 }
 
-function evalInfixExpression(
+function evaluateInfixExpression(
 	operator: string,
 	left: value.Value,
 	right: value.Value
 ): value.Value {
 	if (left.type === 'int' && right.type === 'int') {
-		return evalIntInfixExpression(operator, left, right)
+		return evaluateIntInfixExpression(operator, left, right)
 	}
 	if (left.type === 'str' && right.type === 'str') {
-		return evalStrInfixExpression(operator, left, right)
+		return evaluateStrInfixExpression(operator, left, right)
 	}
 
 	switch (operator) {
@@ -198,7 +200,7 @@ function evalInfixExpression(
 	)
 }
 
-function evalIntInfixExpression(
+function evaluateIntInfixExpression(
 	operator: string,
 	left: value.Int,
 	right: value.Int
@@ -227,7 +229,7 @@ function evalIntInfixExpression(
 	}
 }
 
-function evalStrInfixExpression(
+function evaluateStrInfixExpression(
 	operator: string,
 	left: value.Str,
 	right: value.Str
@@ -246,7 +248,7 @@ function evalStrInfixExpression(
 	}
 }
 
-function evalIfExpression(ie: ast.If, env: value.Env) {
+function evaluateIfExpression(ie: ast.If, env: value.Env) {
 	const condition = evaluate(ie.condition, env)
 	if (isError(condition)) return condition
 
@@ -273,7 +275,7 @@ function evalIdentifier(node: ast.Identifier, env: value.Env) {
 	return new value.Error(`identifier not found: ${node.value}`)
 }
 
-function evalIndexExpression(left: value.Value, index: value.Value) {
+function evaluateIndexExpression(left: value.Value, index: value.Value) {
 	if (left.type !== 'vector') {
 		return new value.Error('Index operator is not supported')
 	}
