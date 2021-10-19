@@ -20,6 +20,10 @@ export class Int {
 	public inspect(): string {
 		return this.value.toString()
 	}
+
+	public hashKey(): string {
+		return 'int:' + this.value.toString()
+	}
 }
 
 export class Str {
@@ -30,6 +34,10 @@ export class Str {
 	public inspect(): string {
 		return '"' + this.value + '"'
 	}
+
+	public hashKey(): string {
+		return 'str:' + this.value
+	}
 }
 
 export class Bool {
@@ -39,6 +47,10 @@ export class Bool {
 
 	public inspect() {
 		return this.value ? 'true' : 'false'
+	}
+
+	public hashKey(): string {
+		return 'bool:' + this.value.toString()
 	}
 }
 
