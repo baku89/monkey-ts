@@ -15,6 +15,7 @@ export type Expression =
 	| Bool
 	| Fn
 	| Vector
+	| Hash
 	| Index
 
 interface INode {
@@ -324,6 +325,30 @@ export class Vector implements IExpression {
 	public toString(): string {
 		const elements = this.elements.map(s => s.toString()).join(', ')
 		return '[' + elements + ']'
+	}
+}
+
+export class Hash implements IExpression {
+	public type: 'hash' = 'hash'
+
+	public constructor(
+		public token: Token,
+		public pairs: Map<Expression, Expression>
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString(): string {
+		const entries = [...this.pairs.entries()]
+			.map(([k, v]) => k.toString() + ': ' + v.toString())
+			.join(', ')
+		return '{' + entries + '}'
 	}
 }
 
