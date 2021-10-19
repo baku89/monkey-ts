@@ -159,7 +159,7 @@ export class Str implements IExpression {
 	}
 
 	public toString() {
-		return this.token.literal
+		return '"' + this.token.literal + '"'
 	}
 }
 
@@ -344,11 +344,8 @@ export class Call implements IExpression {
 	}
 
 	public toString(): string {
-		let str = this.fn.toString()
-		str += '('
-		str += this.args.map(s => s.toString()).join(', ')
-		str += ')'
-
-		return str
+		const fn = this.fn.toString()
+		const args = this.args.map(s => s.toString()).join(', ')
+		return fn + '(' + args + ')'
 	}
 }

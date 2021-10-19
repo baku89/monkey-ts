@@ -19,7 +19,7 @@ export class Str {
 	public type: 'str' = 'str'
 
 	public inspect(): string {
-		return this.value
+		return '"' + this.value + '"'
 	}
 }
 
