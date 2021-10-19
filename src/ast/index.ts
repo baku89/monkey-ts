@@ -286,7 +286,7 @@ export class If implements IExpression {
 	}
 }
 
-export class Block {
+export class Block implements IExpression {
 	public type: 'block' = 'block'
 
 	public constructor(
