@@ -1,7 +1,16 @@
 import * as ast from '../ast'
 import * as value from '../value'
 
-export type Value = Int | Str | Bool | Null | Return | Fn | Builtin | Error
+export type Value =
+	| Int
+	| Str
+	| Bool
+	| Null
+	| Return
+	| Fn
+	| Vector
+	| Builtin
+	| Error
 
 export class Int {
 	public constructor(public value: number) {}
@@ -64,6 +73,17 @@ export class Fn {
 		const params = this.parameters.map(p => p.toString()).join(', ')
 		const body = this.body.toString()
 		return `fn (${params}) {\n${body}\n}`
+	}
+}
+
+export class Vector {
+	public type: 'vector' = 'vector'
+
+	public constructor(public elements: Value[]) {}
+
+	public inspect(): string {
+		const elements = this.elements.map(e => e.inspect()).join(', ')
+		return '[' + elements + ']'
 	}
 }
 

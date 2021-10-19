@@ -230,6 +230,19 @@ describe('built-in functions', () => {
 	}
 })
 
+test('vector literals', () => {
+	const input = '[1, 2 * 2, 3 + 3]'
+	const evaluated = testEval(input)
+
+	expect(evaluated).toBeInstanceOf(value.Vector)
+
+	const vec = evaluated as value.Vector
+	expect(vec.elements).toHaveLength(3)
+	testIntValue(vec.elements[0], 1)
+	testIntValue(vec.elements[1], 4)
+	testIntValue(vec.elements[2], 6)
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

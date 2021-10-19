@@ -51,6 +51,14 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			return evalIdentifier(node, env)
 		case 'fn':
 			return new value.Fn(node.parameters, node.body, env)
+		case 'vector': {
+			const elements = evalExpressions(node.elements, env)
+			if (elements.length === 1 && isError(elements[0])) {
+				return elements[0]
+			}
+			return new value.Vector(elements)
+		}
+
 		case 'call': {
 			const fn = evaluate(node.fn, env)
 			if (isError(fn)) return fn
