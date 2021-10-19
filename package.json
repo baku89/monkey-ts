@@ -2,14 +2,15 @@
 	"name": "monkey-ts",
 	"author": "Baku Hashimoto <mail@baku89.com> (https://baku89.com)",
 	"scripts": {
-		"build": "tsc src/index.ts --declaration --sourceMap false --downlevelIteration true --outdir dist",
-		"build:repl": "tsc src/repl/index.ts --downlevelIteration true --outdir repl",
+		"build": "tsc src/index.ts --declaration --sourceMap false --downlevelIteration true --outDir lib",
+		"build:repl": "tsc src/repl/index.ts --downlevelIteration true --outDir repl",
 		"lint": "eslint src",
 		"repl": "npm run build:repl; node repl",
 		"test": "jest --slient=false",
 		"prepare": "npm run build && npm run build:repl"
 	},
-	"main": "dist/index.js",
+	"main": "./lib/index.js",
+	"typings": "./lib/index.js",
 	"bin": {
 		"monkey": "./bin/monkey"
 	},
