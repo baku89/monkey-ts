@@ -215,12 +215,31 @@ describe('built-in functions', () => {
 	runTest('len("hello world")', 11)
 	runTest('len(1)', 'argument to `len` not supported, got=int')
 	runTest('len("one", "two")', 'wrong number of arguments. expected=1, got=2')
+	runTest('len([1, 2, 3, "str"])', 4)
+	runTest('first([1, 2, 3])', 1)
+	runTest('first([])', null)
+	runTest('last([1, 2, 3])', 3)
+	runTest('last([])', null)
+	runTest('rest([1, 2, 3])', [2, 3])
+	runTest('push([1, 2, 3], 4)', [1, 2, 3, 4])
+	runTest('push([], 1)', [1])
 
-	function runTest(input: string, expected: number | string) {
+	function runTest(input: string, expected: number | null | number[] | string) {
 		const evaluated = testEval(input)
 		if (typeof expected === 'number') {
 			test(`'${input}' to be ${expected}`, () => {
 				testIntValue(evaluated, expected)
+			})
+		} else if (expected === null) {
+			test(`'${input}' to be null`, () => {
+				testNullValue(evaluated)
+			})
+		} else if (Array.isArray(expected)) {
+			test(`'${input}' to be [${expected}]`, () => {
+				expect(evaluated).toBeInstanceOf(value.Vector)
+				const elements = (evaluated as value.Vector).elements
+				expect(elements).toHaveLength(expected.length)
+				expected.forEach((e, i) => testIntValue(elements[i], e))
 			})
 		} else if (typeof expected === 'string') {
 			test(`'${input}' should throw an error with message "${expected}"`, () => {
