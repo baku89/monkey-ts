@@ -55,6 +55,7 @@ export class Parser {
 		this.registerPrefix(TokenType.IF, this.parseIf)
 		this.registerPrefix(TokenType.FUNCTION, this.parseFunctionLiteral)
 		this.registerPrefix(TokenType.LBRACKET, this.parseVector)
+		this.registerPrefix(TokenType.LBRACE, this.parseHash)
 
 		this.registerInfix(TokenType.PLUS, this.parseInfix)
 		this.registerInfix(TokenType.MINUS, this.parseInfix)
@@ -269,6 +270,44 @@ export class Parser {
 		const token = this.curToken
 		const elements = this.parseExpressionList(TokenType.RBRACKET)
 		return new ast.Vector(token, elements)
+	}
+
+	private parseHash(): ast.Expression {
+		const token = this.curToken
+
+		const pairs = new Map<ast.Expression, ast.Expression>()
+
+		while (!this.peekTokenIs(TokenType.RBRACE)) {
+			this.nextToken()
+			const key = this.parseExpression(Priority.LOWEST)
+
+			if (!this.expectPeek(TokenType.COLON)) {
+				console.log(this.peekToken)
+				throw new Error('Cannot parse hash')
+			}
+
+			this.nextToken()
+			const value = this.parseExpression(Priority.LOWEST)
+
+			if (!key || !value) {
+				throw new Error('Cannot parse hash')
+			}
+
+			pairs.set(key, value)
+
+			if (
+				!this.peekTokenIs(TokenType.RBRACE) &&
+				!this.expectPeek(TokenType.COMMA)
+			) {
+				throw new Error('Cannot parse hash')
+			}
+		}
+
+		if (!this.expectPeek(TokenType.RBRACE)) {
+			throw new Error('Cannot parse hash')
+		}
+
+		return new ast.Hash(token, new Map(pairs))
 	}
 
 	private parseFunctionParameters(): ast.Identifier[] {
