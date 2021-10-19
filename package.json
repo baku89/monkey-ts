@@ -15,7 +15,7 @@
 		"monkey": "./bin/monkey"
 	},
 	"license": "MIT",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"devDependencies": {
 		"@types/jest": "^27.0.2",
 		"@typescript-eslint/eslint-plugin": "^4.28.2",
