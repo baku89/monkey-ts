@@ -7,10 +7,10 @@
 		"lint": "eslint src",
 		"repl": "npm run build:repl; node repl",
 		"test": "jest --slient=false",
-		"prepare": "npm run build && npm run build:repl"
+		"prepare": "npm run build"
 	},
 	"main": "./lib/index.js",
-	"typings": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"bin": {
 		"monkey": "./bin/monkey"
 	},
