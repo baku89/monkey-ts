@@ -9,8 +9,11 @@ export type Value =
 	| Return
 	| Fn
 	| Vector
+	| Hash
 	| Builtin
 	| Error
+
+export type Hashable = Int | Str | Bool
 
 export class Int {
 	public constructor(public value: number) {}
@@ -96,6 +99,29 @@ export class Vector {
 	public inspect(): string {
 		const elements = this.elements.map(e => e.inspect()).join(', ')
 		return '[' + elements + ']'
+	}
+}
+
+export class Hash {
+	public type: 'hash' = 'hash'
+
+	public constructor(public pairs: Map<string, Value>) {}
+
+	public inspect(): string {
+		const entries = [...this.pairs.entries()]
+			.map(([k, v]) => this.hashKeyToString(k) + ': ' + v.toString())
+			.join(', ')
+		return '{' + entries + '}'
+	}
+
+	private hashKeyToString(hash: string) {
+		const [type, literal] = hash.split(':')
+		switch (type) {
+			case 'str':
+				return '"' + literal + '"'
+			default:
+				return JSON.parse(literal).toString()
+		}
 	}
 }
 

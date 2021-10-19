@@ -58,6 +58,27 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			}
 			return new value.Vector(elements)
 		}
+		case 'hash': {
+			const pairs = new Map<string, value.Value>()
+
+			for (const [keyNode, valNode] of node.pairs) {
+				const key = evaluate(keyNode, env)
+				if (isError(key)) return key
+
+				if (!isHashable(key)) {
+					return new value.Error(`unusable as hash key: ${key.type}`)
+				}
+
+				const val = evaluate(valNode, env)
+
+				if (isError(val)) return val
+
+				const hashed = key.hashKey()
+				pairs.set(hashed, val)
+			}
+
+			return new value.Hash(pairs)
+		}
 		case 'index': {
 			const left = evaluate(node.left, env)
 			if (isError(left)) return left
@@ -337,4 +358,8 @@ function isTruthy(val: value.Value) {
 
 function isError(val: value.Value): val is value.Error {
 	return val.type === 'error'
+}
+
+function isHashable(val: value.Value): val is value.Hashable {
+	return val.type === 'str' || val.type === 'int' || val.type === 'bool'
 }

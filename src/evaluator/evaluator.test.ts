@@ -286,6 +286,40 @@ describe('vector index expressions', () => {
 	}
 })
 
+test('hash literals', () => {
+	const input = `
+{
+	"one": 10 - 9,
+	"two": 1 + 1,
+	"thr" + "ee": 6 / 2,
+	4: 4,
+	true: 5,
+	false: 6
+}`
+
+	const expected = new Map<string, number>([
+		[new value.Str('one').hashKey(), 1],
+		[new value.Str('two').hashKey(), 2],
+		[new value.Str('three').hashKey(), 3],
+		[new value.Int(4).hashKey(), 4],
+		[new value.Bool(true).hashKey(), 5],
+		[new value.Bool(false).hashKey(), 6],
+	])
+
+	const evaluated = testEval(input)
+
+	if (!(evaluated instanceof value.Hash)) throw new Error()
+
+	expect(evaluated.pairs.size).toBe(expected.size)
+
+	evaluated.pairs.forEach((val, key) => {
+		const expectedValue = expected.get(key)
+		if (!expectedValue) throw new Error()
+
+		testIntValue(val, expectedValue)
+	})
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)
