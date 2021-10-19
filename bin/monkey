@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../repl/index.js')
+require('../lib/repl/index.js')

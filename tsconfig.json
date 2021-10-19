@@ -10,8 +10,11 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"baseUrl": ".",
+		"outDir": "lib",
+		"declaration": true,
+		"downlevelIteration": true,
 		"lib": ["esnext"]
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "src/**/*.test.ts"]
 }

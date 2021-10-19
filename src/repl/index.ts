@@ -6,7 +6,7 @@ import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 import {Env} from '../value'
 
-export function startRepl() {
+function startRepl() {
 	const env = new Env()
 
 	repl.start({
