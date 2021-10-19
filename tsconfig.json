@@ -10,7 +10,7 @@
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"baseUrl": ".",
-		"lib": ["esnext", "dom", "dom.iterable"]
+		"lib": ["esnext"]
 	},
 	"include": ["src/**/*.ts", "demo/**/*.ts"],
 	"exclude": ["node_modules"]

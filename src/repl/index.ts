@@ -1,11 +1,12 @@
-import repl from 'repl'
+import * as os from 'os'
+import * as repl from 'repl'
 
 import {evaluate} from '../evaluator'
 import {Lexer} from '../lexer'
 import {Parser} from '../parser'
 import {Env} from '../value'
 
-export function start() {
+export function startRepl() {
 	const env = new Env()
 
 	repl.start({
@@ -31,3 +32,12 @@ export function start() {
 		writer: v => v,
 	})
 }
+
+function main() {
+	console.log(
+		`Hello ${os.userInfo().username}! This is the Monkey programming language!`
+	)
+	startRepl()
+}
+
+main()
