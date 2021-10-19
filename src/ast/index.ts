@@ -15,6 +15,7 @@ export type Expression =
 	| Bool
 	| Fn
 	| Vector
+	| Index
 
 interface INode {
 	tokenLiteral(): string
@@ -323,6 +324,30 @@ export class Vector implements IExpression {
 	public toString(): string {
 		const elements = this.elements.map(s => s.toString()).join(', ')
 		return '[' + elements + ']'
+	}
+}
+
+export class Index implements IExpression {
+	public type: 'index' = 'index'
+
+	public constructor(
+		public token: Token,
+		public left: Expression,
+		public index: Expression
+	) {}
+
+	public tokenLiteral() {
+		return this.token.literal
+	}
+
+	public expressionNode(): string {
+		throw new Error('Not yet implemented')
+	}
+
+	public toString(): string {
+		const left = this.left.toString()
+		const index = this.index.toString()
+		return `(${left}[${index}])`
 	}
 }
 

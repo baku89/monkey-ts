@@ -177,6 +177,11 @@ describe('operator precedence parsing', () => {
 	runTest('(5 + 5) * 2', '((5 + 5) * 2)')
 	runTest('-(5 + 5)', '(-(5 + 5))')
 	runTest('!(true == true)', '(!(true == true))')
+	runTest('a * [1, 2, 3, 4][b * c] * d', '((a * ([1, 2, 3, 4][(b * c)])) * d)')
+	runTest(
+		'add(a * b[2], b[1], 2 * [1, 2][1])',
+		'add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))'
+	)
 
 	function runTest(input: string, expected: string) {
 		test(`'${input}' to be parsed as ${expected}`, () => {
@@ -452,4 +457,17 @@ test('parsing array literals', () => {
 	testInt(vec.elements[0], 1)
 	testInfixExpression(vec.elements[1], 2, '*', 2)
 	testInfixExpression(vec.elements[2], 3, '+', 3)
+})
+
+test('parsing index expresion', () => {
+	const input = 'myArray[1 + 1]'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Index)
+	const ie = stmt.expression as ast.Index
+
+	testIdentifier(ie.left, 'myArray')
+	testInfixExpression(ie.index, 1, '+', 1)
 })

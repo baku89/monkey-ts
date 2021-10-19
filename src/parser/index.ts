@@ -13,6 +13,7 @@ enum Priority {
 	PRODUCT,
 	PREFIX,
 	CALL,
+	INDEX,
 }
 
 const Precedences = new Map<TokenType, Priority>([
@@ -25,6 +26,7 @@ const Precedences = new Map<TokenType, Priority>([
 	[TokenType.SLASH, Priority.PRODUCT],
 	[TokenType.ASTERISK, Priority.PRODUCT],
 	[TokenType.LPAREN, Priority.CALL],
+	[TokenType.LBRACKET, Priority.INDEX],
 ])
 
 export class Parser {
@@ -63,6 +65,7 @@ export class Parser {
 		this.registerInfix(TokenType.LT, this.parseInfix)
 		this.registerInfix(TokenType.GT, this.parseInfix)
 		this.registerInfix(TokenType.LPAREN, this.parseCallExpression)
+		this.registerInfix(TokenType.LBRACKET, this.parseIndexExpression)
 	}
 
 	public parseProgram(): ast.Program {
@@ -363,6 +366,22 @@ export class Parser {
 		const token = this.curToken
 		const args = this.parseCallArguments()
 		return new ast.Call(token, fn, args)
+	}
+
+	private parseIndexExpression(left: ast.Expression) {
+		const token = this.curToken
+		this.nextToken()
+		const index = this.parseExpression(Priority.LOWEST)
+
+		if (!index) {
+			throw new Error('Cannot parse index expression')
+		}
+
+		if (!this.expectPeek(TokenType.RBRACKET)) {
+			throw new Error('Cannot parse index expression')
+		}
+
+		return new ast.Index(token, left, index)
 	}
 
 	private parseCallArguments(): ast.Expression[] {
