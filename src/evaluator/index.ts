@@ -297,22 +297,38 @@ function evalIdentifier(node: ast.Identifier, env: value.Env) {
 }
 
 function evaluateIndexExpression(left: value.Value, index: value.Value) {
-	if (left.type !== 'vector') {
-		return new value.Error('Index operator is not supported')
+	switch (left.type) {
+		case 'vector':
+			return evaluateVectorIndexExpression(left, index)
+		case 'hash':
+			return evaluateHashIndexExpression(left, index)
+		default:
+			return new value.Error('Index operator is not supported')
 	}
+}
 
+function evaluateVectorIndexExpression(vec: value.Vector, index: value.Value) {
 	if (index.type !== 'int') {
 		return new value.Error('Index is not an int')
 	}
 
-	const len = left.elements.length
+	const len = vec.elements.length
 	const i = index.value
 
-	if (i < 0 || len <= i) {
-		return NULL
+	if (i < 0 || len <= i) return NULL
+	return vec.elements[i]
+}
+
+function evaluateHashIndexExpression(hash: value.Hash, index: value.Value) {
+	if (!isHashable(index)) {
+		return new value.Error(`unusable as hash key: ${index.type}`)
 	}
 
-	return left.elements[i]
+	const hashed = index.hashKey()
+	const val = hash.pairs.get(hashed)
+
+	if (!val) return NULL
+	return val
 }
 
 function applyFunction(fn: value.Value, args: value.Value[]) {

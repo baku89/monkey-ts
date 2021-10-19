@@ -146,6 +146,7 @@ return 1;
 	)
 	runTest('foobar', 'identifier not found: foobar')
 	runTest('"Hello" - "World"', 'unknown operator: str - str')
+	runTest('{"name": "monkey"}[fn(x){x}]', 'unusable as hash key: fn')
 
 	function runTest(input: string, expectedMessage: string) {
 		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
@@ -272,6 +273,14 @@ describe('vector index expressions', () => {
 	runTest('let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]', 2)
 	runTest('[1, 2, 3][3]', null)
 	runTest('[1, 2, 3][-1]', null)
+
+	runTest('{"foo": 5}["foo"]', 5)
+	runTest('{"foo": 5}["bar"]', null)
+	runTest('let key = "foo"; {"foo": 5}[key]', 5)
+	runTest('{}["foo"]', null)
+	runTest('{5: 5}[5]', 5)
+	runTest('{true: 5}[true]', 5)
+	runTest('{false: 5}[false]', 5)
 
 	function runTest(input: string, expected: number | null) {
 		test(`'${input}' equals to ${expected}`, () => {
