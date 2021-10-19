@@ -91,6 +91,9 @@ export class Lexer {
 			case ']':
 				tok = {type: TokenType.RBRACKET, literal: this.ch}
 				break
+			case ':':
+				tok = {type: TokenType.COLON, literal: this.ch}
+				break
 			case '':
 				tok = {type: TokenType.EOF, literal: this.ch}
 				break

@@ -26,6 +26,8 @@ if (5 < 10) {
 "foo bar"
 
 [1, 2]
+
+{"foo": "bar"}
 `
 
 	const tests: {expectedType: TokenType; expectedLiteral: string}[] = [
@@ -118,6 +120,12 @@ if (5 < 10) {
 		{expectedType: TokenType.COMMA, expectedLiteral: ','},
 		{expectedType: TokenType.INT, expectedLiteral: '2'},
 		{expectedType: TokenType.RBRACKET, expectedLiteral: ']'},
+
+		{expectedType: TokenType.LBRACE, expectedLiteral: '{'},
+		{expectedType: TokenType.STR, expectedLiteral: 'foo'},
+		{expectedType: TokenType.COLON, expectedLiteral: ':'},
+		{expectedType: TokenType.STR, expectedLiteral: 'bar'},
+		{expectedType: TokenType.RBRACE, expectedLiteral: '}'},
 
 		{expectedType: TokenType.EOF, expectedLiteral: ''},
 	]
