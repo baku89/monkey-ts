@@ -472,68 +472,62 @@ test('parsing index expresion', () => {
 	testInfixExpression(ie.index, 1, '+', 1)
 })
 
-test('parsing hash literal string keys', () => {
-	const input = '{"one": 1, "two": 2, "three": 3}'
+describe('parsing hash literals', () => {
+	type Expected = Map<string | number | boolean, (v: ast.Expression) => void>
 
-	const program = testParseProgram(input)
-	const stmt = testProgramHasOneExpressionStatement(program)
+	runTest(
+		'parsing hash literal string keys',
+		'{"one": 1, "two": 2, "three": 3}',
+		new Map([
+			['one', v => testInt(v, 1)],
+			['two', v => testInt(v, 2)],
+			['three', v => testInt(v, 3)],
+		])
+	)
 
-	expect(stmt.expression).toBeInstanceOf(ast.Hash)
-	const hash = stmt.expression as ast.Hash
+	runTest(
+		'parsing hash literal number/boolean keys',
+		'{0: 1, 100: 2, false: 3}',
+		new Map<string | number | boolean, (v: ast.Expression) => void>([
+			[0, v => testInt(v, 1)],
+			[100, v => testInt(v, 2)],
+			[false, v => testInt(v, 3)],
+		])
+	)
 
-	expect(hash.pairs.size).toBe(3)
+	runTest(
+		'parsing hash literal with expression',
+		'{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}',
+		new Map([
+			['one', v => testInfixExpression(v, 0, '+', 1)],
+			['two', v => testInfixExpression(v, 10, '-', 8)],
+			['three', v => testInfixExpression(v, 15, '/', 5)],
+		])
+	)
 
-	const expected: Record<string, number> = {
-		one: 1,
-		two: 2,
-		three: 3,
+	runTest('parsing empty hash literal', '{}', new Map())
+
+	function runTest(name: string, input: string, expected: Expected) {
+		test(name, () => {
+			const program = testParseProgram(input)
+			const stmt = testProgramHasOneExpressionStatement(program)
+
+			expect(stmt.expression).toBeInstanceOf(ast.Hash)
+			const hash = stmt.expression as ast.Hash
+
+			expect(hash.pairs.size).toBe(expected.size)
+
+			for (const [k, v] of hash.pairs) {
+				if (k.type !== 'str' && k.type !== 'int' && k.type !== 'bool') {
+					throw new Error()
+				}
+
+				const testValue = expected.get(k.value)
+
+				if (!testValue) throw new Error()
+
+				testValue(v)
+			}
+		})
 	}
-
-	for (const [k, v] of hash.pairs) {
-		expect(k).toBeInstanceOf(ast.Str)
-		expect(v).toBeInstanceOf(ast.Int)
-		const kstr = k as ast.Str
-		const vint = v as ast.Int
-
-		expect(kstr.value in expected).toBe(true)
-		expect(vint.value).toBe(expected[kstr.value])
-	}
-})
-
-test('parsing hash literal with expressions', () => {
-	const input = '{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}'
-
-	const program = testParseProgram(input)
-	const stmt = testProgramHasOneExpressionStatement(program)
-
-	expect(stmt.expression).toBeInstanceOf(ast.Hash)
-	const hash = stmt.expression as ast.Hash
-
-	expect(hash.pairs.size).toBe(3)
-
-	const expected: Record<string, (v: ast.Expression) => void> = {
-		one: v => testInfixExpression(v, 0, '+', 1),
-		two: v => testInfixExpression(v, 10, '-', 8),
-		three: v => testInfixExpression(v, 15, '/', 5),
-	}
-
-	for (const [k, v] of hash.pairs) {
-		expect(k).toBeInstanceOf(ast.Str)
-		const kstr = k as ast.Str
-
-		expect(kstr.value in expected).toBe(true)
-		expected[kstr.value](v)
-	}
-})
-
-test('parsing empty hash literal', () => {
-	const input = '{}'
-
-	const program = testParseProgram(input)
-	const stmt = testProgramHasOneExpressionStatement(program)
-
-	expect(stmt.expression).toBeInstanceOf(ast.Hash)
-	const hash = stmt.expression as ast.Hash
-
-	expect(hash.pairs.size).toBe(0)
 })
