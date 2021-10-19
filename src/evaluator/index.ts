@@ -52,7 +52,7 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 		case 'fn':
 			return new value.Fn(node.parameters, node.body, env)
 		case 'vector': {
-			const elements = evaluateExpressions(node.elements, env)
+			const elements = evaluateCommaSeparatedExpressions(node.elements, env)
 			if (elements.length === 1 && isError(elements[0])) {
 				return elements[0]
 			}
@@ -68,7 +68,7 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 		case 'call': {
 			const fn = evaluate(node.fn, env)
 			if (isError(fn)) return fn
-			const args = evaluateExpressions(node.args, env)
+			const args = evaluateCommaSeparatedExpressions(node.args, env)
 			if (args.length === 1 && isError(args[0])) {
 				return args[0]
 			}
@@ -115,7 +115,7 @@ function evaluateBlockStatement(block: ast.Block, env: value.Env): value.Value {
 	return result
 }
 
-function evaluateExpressions(
+function evaluateCommaSeparatedExpressions(
 	exps: ast.Expression[],
 	env: value.Env
 ): value.Value[] {
