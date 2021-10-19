@@ -243,6 +243,30 @@ test('vector literals', () => {
 	testIntValue(vec.elements[2], 6)
 })
 
+describe('vector index expressions', () => {
+	runTest('[1, 2, 3][0]', 1)
+	runTest('[1, 2, 3][1]', 2)
+	runTest('let i = 0; [1][i]', 1)
+	runTest('[1, 2, 3][1 + 1]', 3)
+	runTest('let myArray = [1, 2, 3]; myArray[2]', 3)
+	runTest('let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2]', 6)
+	runTest('let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]', 2)
+	runTest('[1, 2, 3][3]', null)
+	runTest('[1, 2, 3][-1]', null)
+
+	function runTest(input: string, expected: number | null) {
+		test(`'${input}' equals to ${expected}`, () => {
+			const evaluated = testEval(input)
+
+			if (expected === null) {
+				testNullValue(evaluated)
+			} else {
+				testIntValue(evaluated, expected)
+			}
+		})
+	}
+})
+
 function testEval(input: string): value.Value {
 	const l = new Lexer(input)
 	const p = new Parser(l)

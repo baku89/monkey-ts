@@ -58,7 +58,13 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			}
 			return new value.Vector(elements)
 		}
-
+		case 'index': {
+			const left = evaluate(node.left, env)
+			if (isError(left)) return left
+			const index = evaluate(node.index, env)
+			if (isError(index)) return index
+			return evalIndexExpression(left, index)
+		}
 		case 'call': {
 			const fn = evaluate(node.fn, env)
 			if (isError(fn)) return fn
@@ -265,6 +271,25 @@ function evalIdentifier(node: ast.Identifier, env: value.Env) {
 	}
 
 	return new value.Error(`identifier not found: ${node.value}`)
+}
+
+function evalIndexExpression(left: value.Value, index: value.Value) {
+	if (left.type !== 'vector') {
+		return new value.Error('Index operator is not supported')
+	}
+
+	if (index.type !== 'int') {
+		return new value.Error('Index is not an int')
+	}
+
+	const len = left.elements.length
+	const i = index.value
+
+	if (i < 0 || len <= i) {
+		return NULL
+	}
+
+	return left.elements[i]
 }
 
 function applyFunction(fn: value.Value, args: value.Value[]) {
