@@ -146,7 +146,7 @@ return 1;
 	)
 	runTest('foobar', 'identifier not found: foobar')
 	runTest('"Hello" - "World"', 'unknown operator: str - str')
-	runTest('{"name": "monkey"}[fn(x){x}]', 'unusable as hash key: fn')
+	runTest('{"name": "monkey"}[fn(x){x}]', 'unusable as dict key: fn')
 
 	function runTest(input: string, expectedMessage: string) {
 		test(`'${input}' to be an errror with message '${expectedMessage}'`, () => {
@@ -295,7 +295,7 @@ describe('vector index expressions', () => {
 	}
 })
 
-test('hash literals', () => {
+test('dict literals', () => {
 	const input = `
 {
 	"one": 10 - 9,
@@ -307,17 +307,17 @@ test('hash literals', () => {
 }`
 
 	const expected = new Map<string, number>([
-		[new value.Str('one').hashKey(), 1],
-		[new value.Str('two').hashKey(), 2],
-		[new value.Str('three').hashKey(), 3],
-		[new value.Int(4).hashKey(), 4],
-		[new value.Bool(true).hashKey(), 5],
-		[new value.Bool(false).hashKey(), 6],
+		[new value.Str('one').dictKey(), 1],
+		[new value.Str('two').dictKey(), 2],
+		[new value.Str('three').dictKey(), 3],
+		[new value.Int(4).dictKey(), 4],
+		[new value.Bool(true).dictKey(), 5],
+		[new value.Bool(false).dictKey(), 6],
 	])
 
 	const evaluated = testEval(input)
 
-	if (!(evaluated instanceof value.Hash)) throw new Error()
+	if (!(evaluated instanceof value.Dict)) throw new Error()
 
 	expect(evaluated.pairs.size).toBe(expected.size)
 

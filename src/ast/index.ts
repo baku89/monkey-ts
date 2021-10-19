@@ -15,7 +15,7 @@ export type Expression =
 	| Bool
 	| Fn
 	| Vector
-	| Hash
+	| Dict
 	| Index
 
 interface INode {
@@ -328,8 +328,8 @@ export class Vector implements IExpression {
 	}
 }
 
-export class Hash implements IExpression {
-	public type: 'hash' = 'hash'
+export class Dict implements IExpression {
+	public type: 'dict' = 'dict'
 
 	public constructor(
 		public token: Token,

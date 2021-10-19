@@ -1,9 +1,6 @@
-import {Bool, Int, Str} from '../value'
+import {Bool, DictKeyable, Int, Str} from '../value'
 
-type Hashable = Str | Int | Bool
-type HashablePrimitive = string | number | boolean
-
-test('if hash key is unique', () => {
+test('if dict key is unique', () => {
 	runTest('hello world', 'hello world', true)
 	runTest('foo', 'bar', false)
 	runTest(4, 4, true)
@@ -14,11 +11,11 @@ test('if hash key is unique', () => {
 	runTest(false, false, true)
 
 	function runTest(
-		a: HashablePrimitive,
-		b: HashablePrimitive,
+		a: DictKeyable['value'],
+		b: DictKeyable['value'],
 		expected: boolean
 	) {
-		let aValue, bValue: Hashable
+		let aValue, bValue: DictKeyable
 
 		if (typeof a === 'string') aValue = new Str(a)
 		else if (typeof a === 'number') aValue = new Int(a)
@@ -28,6 +25,6 @@ test('if hash key is unique', () => {
 		else if (typeof b === 'number') bValue = new Int(b)
 		else bValue = new Bool(b)
 
-		expect(aValue.hashKey() === bValue.hashKey()).toBe(expected)
+		expect(aValue.dictKey() === bValue.dictKey()).toBe(expected)
 	}
 })

@@ -472,11 +472,11 @@ test('parsing index expresion', () => {
 	testInfixExpression(ie.index, 1, '+', 1)
 })
 
-describe('parsing hash literals', () => {
+describe('parsing dict literals', () => {
 	type Expected = Map<string | number | boolean, (v: ast.Expression) => void>
 
 	runTest(
-		'parsing hash literal string keys',
+		'parsing dict literal string keys',
 		'{"one": 1, "two": 2, "three": 3}',
 		new Map([
 			['one', v => testInt(v, 1)],
@@ -486,7 +486,7 @@ describe('parsing hash literals', () => {
 	)
 
 	runTest(
-		'parsing hash literal number/boolean keys',
+		'parsing dict literal number/boolean keys',
 		'{0: 1, 100: 2, false: 3}',
 		new Map<string | number | boolean, (v: ast.Expression) => void>([
 			[0, v => testInt(v, 1)],
@@ -496,7 +496,7 @@ describe('parsing hash literals', () => {
 	)
 
 	runTest(
-		'parsing hash literal with expression',
+		'parsing dict literal with expression',
 		'{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}',
 		new Map([
 			['one', v => testInfixExpression(v, 0, '+', 1)],
@@ -505,19 +505,19 @@ describe('parsing hash literals', () => {
 		])
 	)
 
-	runTest('parsing empty hash literal', '{}', new Map())
+	runTest('parsing empty dict literal', '{}', new Map())
 
 	function runTest(name: string, input: string, expected: Expected) {
 		test(name, () => {
 			const program = testParseProgram(input)
 			const stmt = testProgramHasOneExpressionStatement(program)
 
-			expect(stmt.expression).toBeInstanceOf(ast.Hash)
-			const hash = stmt.expression as ast.Hash
+			expect(stmt.expression).toBeInstanceOf(ast.Dict)
+			const dict = stmt.expression as ast.Dict
 
-			expect(hash.pairs.size).toBe(expected.size)
+			expect(dict.pairs.size).toBe(expected.size)
 
-			for (const [k, v] of hash.pairs) {
+			for (const [k, v] of dict.pairs) {
 				if (k.type !== 'str' && k.type !== 'int' && k.type !== 'bool') {
 					throw new Error()
 				}

@@ -9,11 +9,11 @@ export type Value =
 	| Return
 	| Fn
 	| Vector
-	| Hash
+	| Dict
 	| Builtin
 	| Error
 
-export type Hashable = Int | Str | Bool
+export type DictKeyable = Int | Str | Bool
 
 export class Int {
 	public constructor(public value: number) {}
@@ -24,7 +24,7 @@ export class Int {
 		return this.value.toString()
 	}
 
-	public hashKey(): string {
+	public dictKey(): string {
 		return 'int:' + this.value.toString()
 	}
 }
@@ -38,7 +38,7 @@ export class Str {
 		return '"' + this.value + '"'
 	}
 
-	public hashKey(): string {
+	public dictKey(): string {
 		return 'str:' + this.value
 	}
 }
@@ -52,7 +52,7 @@ export class Bool {
 		return this.value ? 'true' : 'false'
 	}
 
-	public hashKey(): string {
+	public dictKey(): string {
 		return 'bool:' + this.value.toString()
 	}
 }
@@ -102,20 +102,20 @@ export class Vector {
 	}
 }
 
-export class Hash {
-	public type: 'hash' = 'hash'
+export class Dict {
+	public type: 'dict' = 'dict'
 
 	public constructor(public pairs: Map<string, Value>) {}
 
 	public inspect(): string {
 		const entries = [...this.pairs.entries()]
-			.map(([k, v]) => this.hashKeyToString(k) + ': ' + v.toString())
+			.map(([k, v]) => this.inspectDictKey(k) + ': ' + v.toString())
 			.join(', ')
 		return '{' + entries + '}'
 	}
 
-	private hashKeyToString(hash: string) {
-		const [type, literal] = hash.split(':')
+	private inspectDictKey(dict: string) {
+		const [type, literal] = dict.split(':')
 		switch (type) {
 			case 'str':
 				return '"' + literal + '"'

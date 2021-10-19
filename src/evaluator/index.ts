@@ -58,26 +58,25 @@ export function evaluate(node: ast.Node, env: value.Env): value.Value {
 			}
 			return new value.Vector(elements)
 		}
-		case 'hash': {
+		case 'dict': {
 			const pairs = new Map<string, value.Value>()
 
 			for (const [keyNode, valNode] of node.pairs) {
 				const key = evaluate(keyNode, env)
 				if (isError(key)) return key
 
-				if (!isHashable(key)) {
-					return new value.Error(`unusable as hash key: ${key.type}`)
+				if (!canBeDictKey(key)) {
+					return new value.Error(`unusable as dict key: ${key.type}`)
 				}
 
 				const val = evaluate(valNode, env)
 
 				if (isError(val)) return val
 
-				const hashed = key.hashKey()
-				pairs.set(hashed, val)
+				pairs.set(key.dictKey(), val)
 			}
 
-			return new value.Hash(pairs)
+			return new value.Dict(pairs)
 		}
 		case 'index': {
 			const left = evaluate(node.left, env)
@@ -300,8 +299,8 @@ function evaluateIndexExpression(left: value.Value, index: value.Value) {
 	switch (left.type) {
 		case 'vector':
 			return evaluateVectorIndexExpression(left, index)
-		case 'hash':
-			return evaluateHashIndexExpression(left, index)
+		case 'dict':
+			return evaluateDictIndexExpression(left, index)
 		default:
 			return new value.Error('Index operator is not supported')
 	}
@@ -319,13 +318,13 @@ function evaluateVectorIndexExpression(vec: value.Vector, index: value.Value) {
 	return vec.elements[i]
 }
 
-function evaluateHashIndexExpression(hash: value.Hash, index: value.Value) {
-	if (!isHashable(index)) {
-		return new value.Error(`unusable as hash key: ${index.type}`)
+function evaluateDictIndexExpression(dict: value.Dict, index: value.Value) {
+	if (!canBeDictKey(index)) {
+		return new value.Error(`unusable as dict key: ${index.type}`)
 	}
 
-	const hashed = index.hashKey()
-	const val = hash.pairs.get(hashed)
+	const dictKey = index.dictKey()
+	const val = dict.pairs.get(dictKey)
 
 	if (!val) return NULL
 	return val
@@ -376,6 +375,6 @@ function isError(val: value.Value): val is value.Error {
 	return val.type === 'error'
 }
 
-function isHashable(val: value.Value): val is value.Hashable {
+function canBeDictKey(val: value.Value): val is value.DictKeyable {
 	return val.type === 'str' || val.type === 'int' || val.type === 'bool'
 }
