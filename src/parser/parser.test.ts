@@ -471,3 +471,69 @@ test('parsing index expresion', () => {
 	testIdentifier(ie.left, 'myArray')
 	testInfixExpression(ie.index, 1, '+', 1)
 })
+
+test('parsing hash literal string keys', () => {
+	const input = '{"one": 1, "two": 2, "three": 3}'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Hash)
+	const hash = stmt.expression as ast.Hash
+
+	expect(hash.pairs.size).toBe(3)
+
+	const expected: Record<string, number> = {
+		one: 1,
+		two: 2,
+		three: 3,
+	}
+
+	for (const [k, v] of hash.pairs) {
+		expect(k).toBeInstanceOf(ast.Str)
+		expect(v).toBeInstanceOf(ast.Int)
+		const kstr = k as ast.Str
+		const vint = v as ast.Int
+
+		expect(kstr.value in expected).toBe(true)
+		expect(vint.value).toBe(expected[kstr.value])
+	}
+})
+
+test('parsing hash literal with expressions', () => {
+	const input = '{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Hash)
+	const hash = stmt.expression as ast.Hash
+
+	expect(hash.pairs.size).toBe(3)
+
+	const expected: Record<string, (v: ast.Expression) => void> = {
+		one: v => testInfixExpression(v, 0, '+', 1),
+		two: v => testInfixExpression(v, 10, '-', 8),
+		three: v => testInfixExpression(v, 15, '/', 5),
+	}
+
+	for (const [k, v] of hash.pairs) {
+		expect(k).toBeInstanceOf(ast.Str)
+		const kstr = k as ast.Str
+
+		expect(kstr.value in expected).toBe(true)
+		expected[kstr.value](v)
+	}
+})
+
+test('parsing empty hash literal', () => {
+	const input = '{}'
+
+	const program = testParseProgram(input)
+	const stmt = testProgramHasOneExpressionStatement(program)
+
+	expect(stmt.expression).toBeInstanceOf(ast.Hash)
+	const hash = stmt.expression as ast.Hash
+
+	expect(hash.pairs.size).toBe(0)
+})
