@@ -10,8 +10,11 @@
 		"prepare": "npm run build"
 	},
 	"main": "dist/index.js",
+	"bin": {
+		"monkey": "./bin/monkey"
+	},
 	"license": "MIT",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"devDependencies": {
 		"@types/jest": "^27.0.2",
 		"@typescript-eslint/eslint-plugin": "^4.28.2",
